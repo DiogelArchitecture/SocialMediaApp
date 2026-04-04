@@ -1,0 +1,103 @@
+{
+  "hooks": [
+    {
+      "text": "This is the one drawing that kills most planning applications before they're even read.",
+      "pattern_type": "Inverse Hook",
+      "avg_er": 0.089,
+      "sample_count": 12
+    },
+    {
+      "text": "67% of UK home extensions run over budget. Same reason every time.",
+      "pattern_type": "Stat Drop",
+      "avg_er": 0.071,
+      "sample_count": 8
+    },
+    {
+      "text": "My client came to me with full planning approval. I told them to pause.",
+      "pattern_type": "Client Story",
+      "avg_er": 0.064,
+      "sample_count": 6
+    },
+    {
+      "text": "This kitchen extension looks perfect. It cost £18,000 more than it should have.",
+      "pattern_type": "Inverse Hook",
+      "avg_er": 0.112,
+      "sample_count": 9
+    },
+    {
+      "text": "Stop trying to add value to your house. It's the wrong goal.",
+      "pattern_type": "Disruption",
+      "avg_er": 0.093,
+      "sample_count": 11
+    },
+    {
+      "text": "Extend vs move. I ran the real numbers for a 3-bed in Birmingham.",
+      "pattern_type": "Cost Comparison",
+      "avg_er": 0.078,
+      "sample_count": 7
+    },
+    {
+      "text": "What your architect checks before drawing a single line.",
+      "pattern_type": "Step Reveal",
+      "avg_er": 0.058,
+      "sample_count": 5
+    },
+    {
+      "text": "Most loft conversions don't need planning permission. Here's when yours does.",
+      "pattern_type": "Myth Bust",
+      "avg_er": 0.067,
+      "sample_count": 8
+    }
+  ],
+  "ctas": [
+    {
+      "phrase": "Save this for when you start planning.",
+      "type": "soft",
+      "signal": "High save rate on checklist and reference content"
+    },
+    {
+      "phrase": "Book a Build, Wait or Move Call via the link in bio.",
+      "type": "hard",
+      "signal": "Drives consultation bookings from decision-stage content"
+    },
+    {
+      "phrase": "Comment 'PLANS' and I'll tell you exactly what yours needs.",
+      "type": "curiosity",
+      "signal": "High comment rate — personalisation offer"
+    },
+    {
+      "phrase": "Drop your postcode below — I'll tell you what's allowed.",
+      "type": "curiosity",
+      "signal": "High comment engagement on planning permission content"
+    },
+    {
+      "phrase": "Follow for the part 2 — the numbers get worse.",
+      "type": "soft",
+      "signal": "High follow rate on multi-part content"
+    }
+  ],
+  "formats": [
+    {
+      "description": "Inverse hook opening — show the wrong thing first, then correct it",
+      "structure": "Wrong thing → hard truth → correct approach → CTA"
+    },
+    {
+      "description": "Stat-led — cold number drop with no context, then the explanation",
+      "structure": "Stat → why it matters → what to do → CTA"
+    },
+    {
+      "description": "Cost breakdown — line by line with the total saved for the final shot",
+      "structure": "Promise breakdown → each line → total reveal → CTA"
+    },
+    {
+      "description": "Myth bust — state the myth as fact, then dismantle with evidence",
+      "structure": "State myth → evidence → correct framework → CTA"
+    },
+    {
+      "description": "Decision framework — give viewers a clear yes/no decision tool",
+      "structure": "Decision question → criteria → verdict logic → CTA"
+    }
+  ],
+  "scrapedAt": "2026-04-04T00:00:00.000Z",
+  "platform": "TikTok"
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "id": "inverse-hook-1",
+    "name": "The Inverse Hook",
+    "category": "Inverse Hook",
+    "description": "Start by showing what everyone does wrong. The viewer watches because they want to know if they're the problem.",
+    "structure": "SHOT 1: Show the wrong thing being done\nSHOT 2: Hard cut — 'That's why your planning application failed'\nSHOT 3–N: The correct approach, step by step\nSHOT FINAL: CTA",
+    "example_hook": "This is the one drawing that kills most planning applications before they're even read.",
+    "er_range": "6–12%"
+  },
+  {
+    "id": "inverse-hook-2",
+    "name": "The Costly Mistake Inverse",
+    "category": "Inverse Hook",
+    "description": "Open on a finished renovation that looks right — then reveal the expensive mistake hidden in it.",
+    "structure": "SHOT 1: Finished, polished result\nSHOT 2: 'This extension cost £40k more than it needed to'\nSHOT 3–N: Where the money went — and what they should have done\nSHOT FINAL: CTA",
+    "example_hook": "This kitchen extension looks perfect. It cost £18,000 more than it should have.",
+    "er_range": "7–14%"
+  },
+  {
+    "id": "myth-bust-1",
+    "name": "Myth Bust",
+    "category": "Education",
+    "description": "State the wrong belief as if it's fact, then dismantle it with evidence. Works because the viewer holds the belief.",
+    "structure": "SHOT 1: 'Everyone thinks you need planning permission for this'\nSHOT 2: The data or rule that breaks the myth\nSHOT 3–N: What you actually need — and what that means for them\nSHOT FINAL: CTA",
+    "example_hook": "Everyone thinks a loft conversion always needs planning permission. Most don't.",
+    "er_range": "5–10%"
+  },
+  {
+    "id": "stat-drop-1",
+    "name": "Stat Drop",
+    "category": "Education",
+    "description": "Open cold with a number that stops the scroll. No context — just the stat. Then explain why it matters.",
+    "structure": "SHOT 1: The stat, no explanation\nSHOT 2: Why this number matters to THIS viewer\nSHOT 3–N: What to do with it\nSHOT FINAL: CTA",
+    "example_hook": "67% of UK home extensions run over budget. Same reason every time.",
+    "er_range": "6–11%"
+  },
+  {
+    "id": "step-reveal-1",
+    "name": "Step Reveal",
+    "category": "Education",
+    "description": "Give the viewer a framework they can act on today. One step per shot. Ends with the full picture.",
+    "structure": "SHOT 1: 'Three things architects check before drawing anything'\nSHOT 2–4: One clear step each\nSHOT 5: Combine — 'Now you have a brief'\nSHOT FINAL: CTA",
+    "example_hook": "Three things your architect checks before drawing a single line.",
+    "er_range": "5–9%"
+  },
+  {
+    "id": "before-after-1",
+    "name": "Before / After",
+    "category": "Storytelling",
+    "description": "Lead with the transformation. Show the result first, then walk back to the start.",
+    "structure": "SHOT 1: The stunning after\nSHOT 2: 'Here's what it looked like before'\nSHOT 3–N: The journey — constraints, decisions, pivots\nSHOT FINAL: CTA",
+    "example_hook": "This became a 4-bed family home. It started as a £200k terraced with a dead-end layout.",
+    "er_range": "5–9%"
+  },
+  {
+    "id": "client-journey-1",
+    "name": "Client Journey",
+    "category": "Storytelling",
+    "description": "Follow a real client decision from confusion to clarity. The viewer sees themselves in it.",
+    "structure": "SHOT 1: 'My client was about to make a £30k mistake'\nSHOT 2: The brief they came in with\nSHOT 3–N: What changed and why\nSHOT FINAL: CTA",
+    "example_hook": "My client came to me with full planning approval. I told them to pause.",
+    "er_range": "5–8%"
+  },
+  {
+    "id": "personal-story-1",
+    "name": "Personal Story",
+    "category": "Storytelling",
+    "description": "First person. Specific moment. The lesson lands harder when it's personal.",
+    "structure": "SHOT 1: The specific moment — 'I walked into a site last week'\nSHOT 2–N: What happened and what it revealed\nSHOT FINAL: CTA",
+    "example_hook": "I walked into a client's house last week and immediately knew the extension quote was wrong.",
+    "er_range": "4–8%"
+  },
+  {
+    "id": "challenge-1",
+    "name": "The Three-Way Challenge",
+    "category": "Challenge",
+    "description": "Give three people the same problem. The reveal drives comments about who the viewer agrees with.",
+    "structure": "SHOT 1: 'I gave three homeowners the same £80k budget'\nSHOT 2–4: What each one did\nSHOT 5: The outcome — who came out ahead\nSHOT FINAL: CTA",
+    "example_hook": "Same house. Same £80k. Three totally different decisions.",
+    "er_range": "6–13%"
+  },
+  {
+    "id": "challenge-2",
+    "name": "Can You Spot It?",
+    "category": "Challenge",
+    "description": "Show something on screen and ask the viewer to find the problem before you reveal it. Comment bait.",
+    "structure": "SHOT 1: 'What's wrong with this floor plan? Comment before I tell you.'\nSHOT 2: Hold on the image\nSHOT 3: The reveal\nSHOT FINAL: CTA",
+    "example_hook": "What's wrong with this floor plan? Most architects miss it first time.",
+    "er_range": "7–15%"
+  },
+  {
+    "id": "wait-for-it-1",
+    "name": "Build the Tension",
+    "category": "Wait For It",
+    "description": "Create a slow reveal. Each shot adds a layer. The payoff lands harder because of the wait.",
+    "structure": "SHOT 1: 'I need to show you something'\nSHOT 2–N: Progressive build — 'And here's why that matters...'\nSHOT FINAL: The reveal + CTA",
+    "example_hook": "This planning decision changed everything. I need to show you why.",
+    "er_range": "5–10%"
+  },
+  {
+    "id": "wait-for-it-2",
+    "name": "The Slow Cost Reveal",
+    "category": "Wait For It",
+    "description": "Show a renovation line item by line item. Viewer stays for the total.",
+    "structure": "SHOT 1: 'Here's what a two-storey extension actually costs — broken down'\nSHOT 2–N: Each cost line, building up\nSHOT FINAL: The total + CTA",
+    "example_hook": "Let's break down exactly what a two-storey extension costs. Stay till the end.",
+    "er_range": "6–12%"
+  },
+  {
+    "id": "skit-role-play-1",
+    "name": "Bad Advice vs Good Advice",
+    "category": "Skits",
+    "description": "Play two voices — the bad advice the internet gives and the professional reality. Comedic contrast.",
+    "structure": "SHOT 1: 'What Google says about loft conversions'\nSHOT 2: 'What actually happens'\nSHOT 3: 'What Google says...'\nSHOT 4: 'What actually happens'\nSHOT FINAL: CTA",
+    "example_hook": "What Google says about planning permission vs what actually happens.",
+    "er_range": "5–10%"
+  },
+  {
+    "id": "skit-contractor-1",
+    "name": "The Contractor Script",
+    "category": "Skits",
+    "description": "Voiceover plays a dodgy contractor. You respond as the architect. The contrast is the joke.",
+    "structure": "SHOT 1: Contractor voice: 'You don't need an architect for that'\nSHOT 2: Adam: 'Here's what that costs you'\nSHOT 3–N: Evidence\nSHOT FINAL: CTA",
+    "example_hook": "\"You don't need an architect for that.\" That phrase costs homeowners £15k on average.",
+    "er_range": "5–9%"
+  },
+  {
+    "id": "question-hook-1",
+    "name": "The Diagnostic Question",
+    "category": "Education",
+    "description": "Open with a question that makes the viewer diagnose their own situation. Personalisation drives saves.",
+    "structure": "SHOT 1: 'Are you planning a loft conversion? Ask yourself this first'\nSHOT 2–N: The diagnostic framework\nSHOT FINAL: CTA",
+    "example_hook": "Planning a loft conversion? Three questions that will save you from a costly mistake.",
+    "er_range": "4–8%"
+  },
+  {
+    "id": "disruption-1",
+    "name": "The Contrarian Take",
+    "category": "Education",
+    "description": "State something that contradicts what your audience has been told. The disruption creates curiosity.",
+    "structure": "SHOT 1: 'Stop trying to add value to your home'\nSHOT 2: 'Here's what you should actually be doing'\nSHOT 3–N: The reframe\nSHOT FINAL: CTA",
+    "example_hook": "Stop trying to add value to your house. It's the wrong goal.",
+    "er_range": "6–12%"
+  },
+  {
+    "id": "disruption-2",
+    "name": "The Unpopular Opinion",
+    "category": "Education",
+    "description": "Lead with a position most people disagree with. The controversy drives comments.",
+    "structure": "SHOT 1: 'Unpopular opinion: most planning applications are written to fail'\nSHOT 2: The argument\nSHOT 3–N: The evidence\nSHOT FINAL: CTA",
+    "example_hook": "Unpopular opinion: most homeowners should rent while they renovate.",
+    "er_range": "6–11%"
+  },
+  {
+    "id": "number-list-1",
+    "name": "The Countdown",
+    "category": "Education",
+    "description": "Promise a number of things at the start. The viewer stays to collect them all.",
+    "structure": "SHOT 1: '5 things your contractor will never tell you'\nSHOT 2–6: One per shot\nSHOT FINAL: CTA",
+    "example_hook": "5 things your contractor won't tell you before the quote.",
+    "er_range": "5–9%"
+  },
+  {
+    "id": "cost-comparison-1",
+    "name": "The Cost Comparison",
+    "category": "Education",
+    "description": "Compare two approaches side by side. Budget, timeline, outcome. The viewer picks a side.",
+    "structure": "SHOT 1: 'Extend vs move — I ran the numbers for a 3-bed in Birmingham'\nSHOT 2: Option A costs\nSHOT 3: Option B costs\nSHOT 4: The verdict\nSHOT FINAL: CTA",
+    "example_hook": "Extend vs move. I ran the real numbers for a 3-bed in Birmingham.",
+    "er_range": "7–13%"
+  },
+  {
+    "id": "planning-permission-1",
+    "name": "Rules Breakdown",
+    "category": "Education",
+    "description": "Take a dense rule (planning, building regs, etc.) and make it actionable in under a minute.",
+    "structure": "SHOT 1: The rule most people get wrong\nSHOT 2: What the rule actually says\nSHOT 3: What it means for you specifically\nSHOT FINAL: CTA",
+    "example_hook": "Permitted development rights — what they actually cover and what they don't.",
+    "er_range": "5–9%"
+  }
+]
