@@ -57,6 +57,7 @@ export default function Home() {
 
   // Output state
   const [rawOutput, setRawOutput] = useState("");
+  const [generateError, setGenerateError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [scrapeStep, setScrapeStep] = useState<ScrapeStep>("idle");
   const [scrapeDetail, setScrapeDetail] = useState<string | undefined>();
@@ -126,6 +127,7 @@ export default function Home() {
     if (isGenerating) return;
     setIsGenerating(true);
     setRawOutput("");
+    setGenerateError(null);
     setScrapeStep("idle");
 
     // Run scrape first if Forge mode with scrapeFresh
@@ -170,13 +172,16 @@ export default function Home() {
               accumulated += msg.text;
               setRawOutput(accumulated);
             }
+            if (msg.error) {
+              setGenerateError(msg.error);
+            }
           } catch {
             // ignore
           }
         }
       }
     } catch (err) {
-      console.error("Generate error:", err);
+      setGenerateError(err instanceof Error ? err.message : "Request failed");
     } finally {
       setIsGenerating(false);
     }
@@ -497,6 +502,17 @@ export default function Home() {
 
             {/* Right panel — output */}
             <div className="flex-1 p-6 overflow-y-auto">
+              {generateError && (
+                <div className="mb-4 border border-[#FF4F1F]/50 bg-[#FF4F1F]/5 p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#FF4F1F]" />
+                    <span className="text-xs text-[#FF4F1F] uppercase tracking-widest" style={{ fontFamily: "Anton, sans-serif" }}>
+                      Error
+                    </span>
+                  </div>
+                  <p className="text-sm font-mono text-[#F2F2F0]">{generateError}</p>
+                </div>
+              )}
               <OutputPanel
                 rawOutput={rawOutput}
                 isGenerating={isGenerating}
