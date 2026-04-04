@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
           const extractionPrompt = `Extract structured engagement patterns from these ${platform} posts about "${keyword}".\n\nPosts:\n${postsJson}\n\nReturn this exact JSON structure:\n{\n  "hooks": [{ "text": "...", "pattern_type": "...", "avg_er": 0.0, "sample_count": 0 }],\n  "ctas": [{ "phrase": "...", "type": "soft|hard|curiosity", "signal": "..." }],\n  "formats": [{ "description": "...", "structure": "..." }]\n}`;
 
           const response = await client.messages.create({
-            model: "claude-sonnet-4-20250514",
+            model: "claude-sonnet-4-6",
             max_tokens: 1024,
             system: EXTRACTION_SYSTEM,
             messages: [{ role: "user", content: extractionPrompt }],

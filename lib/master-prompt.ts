@@ -1,11 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-function loadMasterPrompt(): string {
-  const filePath = path.join(process.cwd(), "MASTER_PROMPT.md");
-  const base = fs.readFileSync(filePath, "utf-8");
-
-  const additions = `
+const ADDITIONS = `
 
 ## PRIORITY ORDER (when constraints conflict)
 1. Hook quality
@@ -34,7 +30,15 @@ The viral cut must reuse EXACT shots from the main script only — no new scenes
 Reference shots by number (e.g. "SHOT 3 — trimmed to 1.5s").
 `;
 
-  return base + additions;
+function loadMasterPrompt(): string {
+  try {
+    const filePath = path.join(process.cwd(), "MASTER_PROMPT.md");
+    const base = fs.readFileSync(filePath, "utf-8");
+    return base + ADDITIONS;
+  } catch {
+    // Fallback if file can't be read (e.g. unusual deployment path)
+    return `You are Adam Mokhtar's personal content strategist and scriptwriter for Diogel Architecture and the RePlanIt brand. Generate short-form video scripts for UK home renovation content. Use UK English. Grade 3 reading level. No AI language. Hooks must stop the scroll in 2 seconds.` + ADDITIONS;
+  }
 }
 
 export const MASTER_PROMPT = loadMasterPrompt();
