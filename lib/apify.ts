@@ -3,7 +3,10 @@ import fs from "fs";
 import path from "path";
 import type { Platform } from "./build-prompt";
 
-const CACHE_DIR = path.join(process.cwd(), "data", "cache");
+// On Vercel the project root is read-only — use /tmp for cache
+const CACHE_DIR = process.env.VERCEL
+  ? "/tmp/replanit-cache"
+  : path.join(process.cwd(), "data", "cache");
 const CACHE_TTL_DAYS = 7;
 
 const ACTOR_IDS: Record<Platform, string> = {
