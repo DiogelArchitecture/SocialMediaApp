@@ -1,6 +1,8 @@
-## CUSTOMER INTELLIGENCE — FOR SCRIPT GENERATION
+## CUSTOMER INTELLIGENCE — BACKGROUND CONTEXT ONLY
 
-Use this intelligence to ensure every script speaks directly to the real person watching.
+CRITICAL: This intelligence informs HOW Adam speaks — his tone, word choices, pain points to reference, and emotional framing. It is NEVER mentioned in the script. Do not reference "Karen", "Mark", or any avatar name. Do not describe the audience in the script. The script speaks TO this person as "you" — not ABOUT them.
+
+Use this to ensure every script resonates with the real person watching.
 
 ### Who We're Talking To
 

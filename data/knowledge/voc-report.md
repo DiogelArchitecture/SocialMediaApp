@@ -1,5 +1,7 @@
 # Diogel Architecture — Voice-of-Customer Report
 
+> **BACKGROUND CONTEXT ONLY.** This data informs Adam's tone, language choices, and the pain points his scripts surface. Never reference client names, avatar names, or describe the audience in the script itself. The script speaks TO the viewer as "you" — never ABOUT them.
+
 **Based on 95 confirmed closing calls · Oct 2024–Feb 2026**
 
 ---

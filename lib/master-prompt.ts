@@ -3,6 +3,11 @@ import path from "path";
 
 const ADDITIONS = `
 
+## AUDIENCE RULE
+The customer intelligence in this prompt is BACKGROUND CONTEXT — it shapes tone, language, and which pain points to surface.
+Never mention Karen, Mark, or any avatar name in the script.
+Never describe the audience in the script. Speak TO the viewer as "you" — never ABOUT them.
+
 ## PRIORITY ORDER (when constraints conflict)
 1. Hook quality
 2. Clarity of the core idea

@@ -89,16 +89,27 @@ function normalisePost(raw: Record<string, unknown>, platform: Platform): Scrape
   };
 }
 
+// Fixed niche terms — always scraped for renovation pattern intelligence regardless of topic.
+// The topic is used for script generation, NOT for what we search on TikTok.
+const NICHE_SEARCH_TERMS: Record<Platform, string[]> = {
+  "TikTok":           ["home renovation UK", "house extension UK", "planning permission UK"],
+  "Instagram Reels":  ["homerenovation", "houseextension", "planningpermission"],
+  "YouTube Shorts":   ["home renovation UK", "house extension tips", "planning permission UK"],
+  "Facebook Reels":   ["home renovation UK", "house extension UK", "planning permission UK"],
+};
+
 export async function scrapeContent(
   platform: Platform,
-  keyword: string,
+  keyword: string,         // kept for cache key / display — NOT used as search term
   forceFresh = false,
   onProgress?: (msg: string) => void
 ): Promise<ScrapedPost[]> {
-  const cacheKey = getCacheKey(platform, keyword);
+  // Cache is keyed to the platform + niche (not the specific topic)
+  const cacheKey = getCacheKey(platform, "renovation-niche");
   const cachePath = getCachePath(cacheKey);
 
   if (!forceFresh && isCacheValid(cachePath)) {
+    onProgress?.("Using cached niche data...");
     const cached = readCache(cachePath);
     if (cached) return cached;
   }
@@ -108,130 +119,41 @@ export async function scrapeContent(
 
   const client = new ApifyClient({ token });
   const actorId = ACTOR_IDS[platform];
+  const searchTerms = NICHE_SEARCH_TERMS[platform] ?? ["home renovation UK"];
 
-  const tiers = buildSearchTiers(keyword);
-  const MIN_RESULTS = 3; // widen tiers only if we find fewer than 3 posts
   let allPosts: ScrapedPost[] = [];
 
-  for (let i = 0; i < tiers.length; i++) {
-    const { label, terms } = tiers[i];
-    onProgress?.(`Searching ${label}: "${terms[0]}"${terms.length > 1 ? ` +${terms.length - 1} more` : ""}...`);
+  for (const term of searchTerms) {
+    onProgress?.(`Scraping "${term}"...`);
+    try {
+      const input = buildActorInput(platform, term);
+      const run = await client.actor(actorId).call(input);
+      const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 50 });
 
-    for (const term of terms) {
-      try {
-        const input = buildActorInput(platform, term);
-        const run = await client.actor(actorId).call(input);
-        const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 50 });
+      const posts = (items as Record<string, unknown>[])
+        .map((item) => normalisePost(item, platform))
+        .filter((p) => (p.views ?? 0) > 0);
 
-        const posts = (items as Record<string, unknown>[])
-          .map((item) => normalisePost(item, platform))
-          .filter((p) => (p.views ?? 0) > 0); // only exclude posts with literally 0 views
-
-        allPosts = allPosts.concat(posts);
-      } catch (err) {
-        console.error(`Apify scrape failed for term "${term}":`, err);
-      }
-    }
-
-    // Deduplicate after each tier
-    const seen = new Set<string>();
-    allPosts = allPosts.filter((p) => {
-      if (seen.has(p.id)) return false;
-      seen.add(p.id);
-      return true;
-    });
-
-    if (allPosts.length >= MIN_RESULTS) {
-      onProgress?.(`Found ${allPosts.length} posts — done.`);
-      break;
-    } else if (i < tiers.length - 1) {
-      onProgress?.(`Only ${allPosts.length} result${allPosts.length !== 1 ? "s" : ""} — widening search to ${tiers[i + 1].label}...`);
+      allPosts = allPosts.concat(posts);
+      onProgress?.(`Found ${posts.length} posts for "${term}"`);
+    } catch (err) {
+      console.error(`Apify scrape failed for term "${term}":`, err);
+      onProgress?.(`Failed for "${term}" — continuing...`);
     }
   }
 
-  const top15 = allPosts
+  // Deduplicate and sort by ER
+  const seen = new Set<string>();
+  const top20 = allPosts
+    .filter((p) => { if (seen.has(p.id)) return false; seen.add(p.id); return true; })
     .sort((a, b) => (b.engagement_rate ?? 0) - (a.engagement_rate ?? 0))
-    .slice(0, 15);
+    .slice(0, 20);
 
-  writeCache(cachePath, top15);
-  return top15;
-}
-
-interface SearchTier {
-  label: string;
-  terms: string[];
-}
-
-function buildSearchTiers(keyword: string): SearchTier[] {
-  const lower = keyword.toLowerCase();
-
-  // ── Tier 1: exact topic ────────────────────────────────────────────────────
-  const tier1: SearchTier = { label: "exact topic", terms: [keyword] };
-
-  // ── Tier 2: core subject (strip common qualifiers) ─────────────────────────
-  const qualifierPattern = /\b(mistakes?|tips?|guide|how\s+to|explained?|planning|rules?|costs?|advice|beginners?|uk|basics?|problems?|issues?|errors?|wrong|right|best|worst|common|avoid|top\s*\d*|things?\s+to|you\s+need|before\s+you|why\s+your?)\b/gi;
-  const stripped = keyword.replace(qualifierPattern, "").replace(/\s+/g, " ").trim();
-  const coreSubject = stripped.length >= 3 && stripped.toLowerCase() !== lower ? stripped : "";
-
-  const tier2Terms: string[] = coreSubject
-    ? [coreSubject, `${coreSubject} UK`]
-    : [`${keyword} UK`, `UK ${keyword}`];
-  const tier2: SearchTier = { label: "core subject", terms: tier2Terms };
-
-  // ── Tier 3: broad niche category ─────────────────────────────────────────
-  const categories: Array<{ match: string[]; terms: string[] }> = [
-    {
-      match: ["loft", "attic", "dormer"],
-      terms: ["loft conversion UK", "loft conversion tips"],
-    },
-    {
-      match: ["extension", "single storey", "rear extension", "side return"],
-      terms: ["home extension UK", "house extension ideas"],
-    },
-    {
-      match: ["garage"],
-      terms: ["garage conversion UK", "home conversion"],
-    },
-    {
-      match: ["planning permission", "permitted development", "pd rights", "planning application"],
-      terms: ["planning permission UK", "UK planning permission tips"],
-    },
-    {
-      match: ["building reg", "building control", "building regulation"],
-      terms: ["building regulations UK", "home renovation UK"],
-    },
-    {
-      match: ["party wall", "neighbour"],
-      terms: ["party wall agreement UK", "home renovation neighbour"],
-    },
-    {
-      match: ["architect", "architectural", "brief", "drawings"],
-      terms: ["UK architect tips", "architectural design UK"],
-    },
-    {
-      match: ["kitchen", "bathroom", "utility"],
-      terms: ["kitchen renovation UK", "home renovation UK"],
-    },
-    {
-      match: ["cost", "budget", "price", "quote", "contractor", "builder"],
-      terms: ["home renovation costs UK", "UK renovation budget"],
-    },
-    {
-      match: ["renovation", "refurb", "remodel"],
-      terms: ["home renovation UK", "house renovation tips"],
-    },
-  ];
-
-  let tier3Terms = ["home renovation UK", "house renovation UK"];
-  for (const cat of categories) {
-    if (cat.match.some(k => lower.includes(k))) {
-      tier3Terms = cat.terms;
-      break;
-    }
+  if (top20.length > 0) {
+    writeCache(cachePath, top20);
   }
-  const tier3: SearchTier = { label: "broad niche", terms: tier3Terms };
-
-  return [tier1, tier2, tier3];
+  onProgress?.(`Done — ${top20.length} posts collected.`);
+  return top20;
 }
 
 function buildActorInput(platform: Platform, searchTerm: string): Record<string, unknown> {
