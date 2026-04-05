@@ -39,9 +39,11 @@ export async function POST(request: NextRequest) {
 
         try {
           send("scraping", `Scraping ${platform}...`);
-          const posts = await scrapeContent(platform, keyword, forceFresh);
+          const posts = await scrapeContent(platform, keyword, forceFresh, (msg) => {
+            send("scraping", msg);
+          });
 
-          send("filtering", `Filtering by engagement rate... ${posts.length} posts above 5% ER`);
+          send("filtering", `${posts.length} posts above 5% ER`);
 
           if (posts.length === 0) {
             send("error", "No posts found above 5% engagement rate. Using cached patterns.");

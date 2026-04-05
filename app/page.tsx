@@ -73,6 +73,7 @@ export default function Home() {
     comments?: number; shares?: number; engagement_rate?: number; caption?: string;
   }>>([]);
   const [scrapeLoading, setScrapeLoading] = useState(false);
+  const [scrapeStatusMsg, setScrapeStatusMsg] = useState<string>("");
   const [scrapeError, setScrapeError] = useState<string | null>(null);
   const [selectedHook, setSelectedHook] = useState<string | null>(null);
 
@@ -116,7 +117,7 @@ export default function Home() {
   }
 
   function handleBack() {
-    if (step === 2) { setStep(1); setSelectedHook(null); setRawPosts([]); setScrapeError(null); }
+    if (step === 2) { setStep(1); setSelectedHook(null); setRawPosts([]); setScrapeError(null); setScrapeStatusMsg(""); }
     else if (step === 3) { setStep(2); setSelectedConceptId(null); setConcepts([]); setCtaType(null); setCtaPhrase(""); }
     else if (step === 4) { setStep(3); resetOutputState(); }
   }
@@ -125,6 +126,7 @@ export default function Home() {
   async function handleFindHooks(topicOverride?: string) {
     const activeTopic = topicOverride ?? topic;
     setScrapeLoading(true);
+    setScrapeStatusMsg("");
     setScrapeError(null);
     setRawPosts([]);
     setPatterns(null);
@@ -149,6 +151,7 @@ export default function Home() {
               if (!json || json === "[DONE]") continue;
               try {
                 const msg = JSON.parse(json);
+                if (msg.step && msg.detail) setScrapeStatusMsg(msg.detail);
                 if (msg.done) {
                   if (msg.patterns) setPatterns(msg.patterns);
                   if (msg.rawPosts) setRawPosts(msg.rawPosts);
@@ -513,8 +516,8 @@ export default function Home() {
                   <div className="space-y-4">
                     {/* Scraping in progress */}
                     {scrapeLoading && (
-                      <div className="border border-[#E8FF47]/20 bg-[#E8FF47]/3 p-4">
-                        <div className="flex items-center gap-3 mb-2">
+                      <div className="border border-[#E8FF47]/20 bg-[#E8FF47]/3 p-4 space-y-2">
+                        <div className="flex items-center gap-3">
                           <div className="flex gap-1">
                             {[0,150,300].map(d => (
                               <div key={d} className="w-1.5 h-1.5 rounded-full bg-[#E8FF47] animate-bounce" style={{ animationDelay: `${d}ms` }} />
@@ -522,7 +525,9 @@ export default function Home() {
                           </div>
                           <span className="text-xs font-mono text-[#E8FF47]">Scraping {platform}...</span>
                         </div>
-                        <p className="text-xs text-[#6B6B72] font-mono">Fetching real posts and extracting engagement data</p>
+                        {scrapeStatusMsg && (
+                          <p className="text-xs text-[#6B6B72] font-mono pl-1">{scrapeStatusMsg}</p>
+                        )}
                       </div>
                     )}
 

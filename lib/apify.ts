@@ -92,7 +92,8 @@ function normalisePost(raw: Record<string, unknown>, platform: Platform): Scrape
 export async function scrapeContent(
   platform: Platform,
   keyword: string,
-  forceFresh = false
+  forceFresh = false,
+  onProgress?: (msg: string) => void
 ): Promise<ScrapedPost[]> {
   const cacheKey = getCacheKey(platform, keyword);
   const cachePath = getCachePath(cacheKey);
@@ -108,36 +109,47 @@ export async function scrapeContent(
   const client = new ApifyClient({ token });
   const actorId = ACTOR_IDS[platform];
 
-  // Build adjacent search terms
-  const searchTerms = buildSearchTerms(keyword);
-
+  const tiers = buildSearchTiers(keyword);
+  const MIN_RESULTS = 5;
   let allPosts: ScrapedPost[] = [];
 
-  for (const term of searchTerms) {
-    try {
-      const input = buildActorInput(platform, term);
-      const run = await client.actor(actorId).call(input);
-      const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 50 });
+  for (let i = 0; i < tiers.length; i++) {
+    const { label, terms } = tiers[i];
+    onProgress?.(`Searching ${label}: "${terms[0]}"${terms.length > 1 ? ` +${terms.length - 1} more` : ""}...`);
 
-      const posts = (items as Record<string, unknown>[])
-        .map((item) => normalisePost(item, platform))
-        .filter((p) => (p.engagement_rate ?? 0) > 0.05);
+    for (const term of terms) {
+      try {
+        const input = buildActorInput(platform, term);
+        const run = await client.actor(actorId).call(input);
+        const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 50 });
 
-      allPosts = allPosts.concat(posts);
-    } catch (err) {
-      console.error(`Apify scrape failed for term "${term}":`, err);
+        const posts = (items as Record<string, unknown>[])
+          .map((item) => normalisePost(item, platform))
+          .filter((p) => (p.engagement_rate ?? 0) > 0.05);
+
+        allPosts = allPosts.concat(posts);
+      } catch (err) {
+        console.error(`Apify scrape failed for term "${term}":`, err);
+      }
+    }
+
+    // Deduplicate after each tier
+    const seen = new Set<string>();
+    allPosts = allPosts.filter((p) => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    });
+
+    if (allPosts.length >= MIN_RESULTS) {
+      onProgress?.(`Found ${allPosts.length} posts — done.`);
+      break;
+    } else if (i < tiers.length - 1) {
+      onProgress?.(`Only ${allPosts.length} result${allPosts.length !== 1 ? "s" : ""} — widening search to ${tiers[i + 1].label}...`);
     }
   }
 
-  // Deduplicate by id, sort by ER descending, take top 15
-  const seen = new Set<string>();
-  const deduped = allPosts.filter((p) => {
-    if (seen.has(p.id)) return false;
-    seen.add(p.id);
-    return true;
-  });
-
-  const top15 = deduped
+  const top15 = allPosts
     .sort((a, b) => (b.engagement_rate ?? 0) - (a.engagement_rate ?? 0))
     .slice(0, 15);
 
@@ -145,24 +157,81 @@ export async function scrapeContent(
   return top15;
 }
 
-function buildSearchTerms(keyword: string): string[] {
-  const base = [keyword];
-  // Adjacent renovation terms
-  const adjacents: Record<string, string[]> = {
-    "loft conversion": ["home extension", "planning permission UK", "house renovation"],
-    extension: ["home extension UK", "planning permission", "building regulations"],
-    renovation: ["house renovation UK", "home improvement", "planning permission"],
-    planning: ["planning permission UK", "building regulations", "architect UK"],
-  };
+interface SearchTier {
+  label: string;
+  terms: string[];
+}
 
+function buildSearchTiers(keyword: string): SearchTier[] {
   const lower = keyword.toLowerCase();
-  for (const [key, extras] of Object.entries(adjacents)) {
-    if (lower.includes(key)) {
-      return [...base, ...extras];
+
+  // ── Tier 1: exact topic ────────────────────────────────────────────────────
+  const tier1: SearchTier = { label: "exact topic", terms: [keyword] };
+
+  // ── Tier 2: core subject (strip common qualifiers) ─────────────────────────
+  const qualifierPattern = /\b(mistakes?|tips?|guide|how\s+to|explained?|planning|rules?|costs?|advice|beginners?|uk|basics?|problems?|issues?|errors?|wrong|right|best|worst|common|avoid|top\s*\d*|things?\s+to|you\s+need|before\s+you|why\s+your?)\b/gi;
+  const stripped = keyword.replace(qualifierPattern, "").replace(/\s+/g, " ").trim();
+  const coreSubject = stripped.length >= 3 && stripped.toLowerCase() !== lower ? stripped : "";
+
+  const tier2Terms: string[] = coreSubject
+    ? [coreSubject, `${coreSubject} UK`]
+    : [`${keyword} UK`, `UK ${keyword}`];
+  const tier2: SearchTier = { label: "core subject", terms: tier2Terms };
+
+  // ── Tier 3: broad niche category ─────────────────────────────────────────
+  const categories: Array<{ match: string[]; terms: string[] }> = [
+    {
+      match: ["loft", "attic", "dormer"],
+      terms: ["loft conversion UK", "loft conversion tips"],
+    },
+    {
+      match: ["extension", "single storey", "rear extension", "side return"],
+      terms: ["home extension UK", "house extension ideas"],
+    },
+    {
+      match: ["garage"],
+      terms: ["garage conversion UK", "home conversion"],
+    },
+    {
+      match: ["planning permission", "permitted development", "pd rights", "planning application"],
+      terms: ["planning permission UK", "UK planning permission tips"],
+    },
+    {
+      match: ["building reg", "building control", "building regulation"],
+      terms: ["building regulations UK", "home renovation UK"],
+    },
+    {
+      match: ["party wall", "neighbour"],
+      terms: ["party wall agreement UK", "home renovation neighbour"],
+    },
+    {
+      match: ["architect", "architectural", "brief", "drawings"],
+      terms: ["UK architect tips", "architectural design UK"],
+    },
+    {
+      match: ["kitchen", "bathroom", "utility"],
+      terms: ["kitchen renovation UK", "home renovation UK"],
+    },
+    {
+      match: ["cost", "budget", "price", "quote", "contractor", "builder"],
+      terms: ["home renovation costs UK", "UK renovation budget"],
+    },
+    {
+      match: ["renovation", "refurb", "remodel"],
+      terms: ["home renovation UK", "house renovation tips"],
+    },
+  ];
+
+  let tier3Terms = ["home renovation UK", "house renovation UK"];
+  for (const cat of categories) {
+    if (cat.match.some(k => lower.includes(k))) {
+      tier3Terms = cat.terms;
+      break;
     }
   }
+  const tier3: SearchTier = { label: "broad niche", terms: tier3Terms };
 
-  return [...base, `${keyword} UK`, `${keyword} renovation`];
+  return [tier1, tier2, tier3];
 }
 
 function buildActorInput(platform: Platform, searchTerm: string): Record<string, unknown> {
