@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import ModeTab, { type AppMode } from "@/components/ModeTab";
 import StepIndicator, { type Step } from "@/components/StepIndicator";
@@ -13,7 +13,6 @@ import OutputPanel from "@/components/OutputPanel";
 import RetentionTimeline from "@/components/RetentionTimeline";
 import SpinoffCard from "@/components/SpinoffCard";
 import type { Platform, Duration, Audience, HookStyle, Tone, Toggles, PatternData } from "@/lib/build-prompt";
-import type { SectionKey } from "@/lib/parse-output";
 import { parseAnalysis, type ParsedAnalysis } from "@/lib/analyse";
 import type { ScrapeStep } from "@/components/ScrapeProgress";
 import type { SpinoffIdea } from "@/lib/analyse";
@@ -520,13 +519,13 @@ export default function Home() {
                         FIND HOOKS →
                       </button>
                       <button onClick={handleRandom}
-                        className="px-4 py-3.5 text-sm border border-[#1E1E24] text-[#6B6B72] hover:border-[#E8FF47]/50 hover:text-[#E8FF47] transition-all cursor-pointer"
+                        className="px-4 py-3.5 text-sm border border-[#1E1E24] text-[#6B6B72] hover:border-[#FF4F1F]/60 hover:text-[#FF4F1F] transition-all cursor-pointer flex-shrink-0"
                         style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.08em" }}
-                        title="Pick a random UK renovation topic and generate immediately">
-                        ⚡
+                        title="Pick a random UK renovation topic and skip straight to the script">
+                        RANDOM
                       </button>
                     </div>
-                    <p className="text-xs text-[#6B6B72]/60 text-center" style={{ fontFamily: "Inter, sans-serif" }}>⚡ = random topic, skip to script</p>
+                    <p className="text-xs text-[#6B6B72]/60 text-center" style={{ fontFamily: "DM Mono, monospace" }}>RANDOM picks a UK reno topic and generates immediately</p>
                   </div>
                 )}
 
