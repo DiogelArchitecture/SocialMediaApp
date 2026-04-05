@@ -51,15 +51,22 @@ function loadMasterPrompt(): string {
     base = `You are Adam Mokhtar's personal content strategist and scriptwriter for Diogel Architecture and the RePlanIt brand. Generate short-form video scripts for UK home renovation content. Use UK English. Grade 3 reading level. No AI language. Hooks must stop the scroll in 2 seconds.`;
   }
 
-  let avatarIntel = "";
+  // Load all .md files from data/knowledge/ — any file added to that directory is auto-included
+  let knowledgeBlock = "";
   try {
-    const avatarPath = path.join(process.cwd(), "data", "knowledge", "customer-avatar.md");
-    avatarIntel = fs.readFileSync(avatarPath, "utf-8");
+    const knowledgeDir = path.join(process.cwd(), "data", "knowledge");
+    const files = fs.readdirSync(knowledgeDir)
+      .filter((f) => f.endsWith(".md"))
+      .sort();
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(knowledgeDir, file), "utf-8");
+      knowledgeBlock += `\n\n${content}`;
+    }
   } catch {
-    // No avatar file — skip silently
+    // No knowledge directory — skip silently
   }
 
-  return base + (avatarIntel ? `\n\n${avatarIntel}` : "") + ADDITIONS;
+  return base + knowledgeBlock + ADDITIONS;
 }
 
 export const MASTER_PROMPT = loadMasterPrompt();

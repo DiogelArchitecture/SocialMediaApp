@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { readPatterns } from "@/lib/pattern-store";
+import { MASTER_PROMPT } from "@/lib/master-prompt";
 import type { Platform, Duration, Audience, Tone } from "@/lib/build-prompt";
 
 export const runtime = "nodejs";
@@ -25,10 +26,12 @@ export interface ScriptConcept {
   cta: "soft" | "hard" | "curiosity";
 }
 
-const SYSTEM = `You are a short-form video script strategist for Diogel Architecture / RePlanIt, a UK architectural design brand.
-Your job is to generate 3 distinct script concepts — not full scripts, just tight strategic outlines.
+const SYSTEM = MASTER_PROMPT + `
+
+## CONCEPTS MODE
+Your job right now is to generate 3 distinct script concepts — NOT full scripts, just tight strategic outlines.
 Each concept must challenge a different commonly held belief about UK home renovation.
-Use UK English. Grade 3 reading level. No AI language.`;
+Use all customer intelligence above to ensure each concept targets a real pain point Karen & Mark feel.`;
 
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
