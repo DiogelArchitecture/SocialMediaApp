@@ -52,6 +52,21 @@ export async function POST(request: NextRequest) {
 
           send("extracting", "Extracting patterns...");
 
+          // ── RAW POSTS snapshot for UI (before hook extraction) ──
+          const rawPosts = posts
+            .sort((a, b) => (b.engagement_rate ?? 0) - (a.engagement_rate ?? 0))
+            .slice(0, 20)
+            .map(p => ({
+              url: p.url || undefined,
+              platform,
+              views: p.views || undefined,
+              likes: p.likes || undefined,
+              comments: p.comments || undefined,
+              shares: p.shares || undefined,
+              engagement_rate: p.engagement_rate || undefined,
+              caption: (p.caption || p.transcript || "").slice(0, 120).trim() || undefined,
+            }));
+
           // ── HOOKS: extract directly from posts, preserving source URL + stats ──
           // No Claude needed — take opening line from each post's caption/transcript
           const hooks: HookSource[] = posts
@@ -120,7 +135,7 @@ export async function POST(request: NextRequest) {
           writePatterns(platform, keyword, patterns);
 
           send("done", `${hooks.length} hooks with source links saved.`);
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, patterns })}\n\n`));
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, patterns, rawPosts })}\n\n`));
           controller.close();
         } catch (err) {
           const msg = err instanceof Error ? err.message : "Scrape failed";

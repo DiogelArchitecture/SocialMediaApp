@@ -59,10 +59,11 @@ export interface BuildPromptParams {
   patterns?: PatternData | null;
   mode: "quick" | "forge";
   selectedConcept?: SelectedConcept | null;
+  ctaOverride?: { type: string; phrase: string } | null;
 }
 
 export function buildUserPrompt(params: BuildPromptParams): string {
-  const { topic, platform, duration, location, audience, hookStyle, tone, toggles, patterns, mode, selectedConcept } = params;
+  const { topic, platform, duration, location, audience, hookStyle, tone, toggles, patterns, mode, selectedConcept, ctaOverride } = params;
 
   let prompt = "";
 
@@ -124,6 +125,11 @@ export function buildUserPrompt(params: BuildPromptParams): string {
     prompt += `Premise / structure: ${selectedConcept.premise}\n`;
     prompt += `CTA type: ${selectedConcept.cta}\n`;
     prompt += `Build the full script from this concept. Keep the hook line verbatim or as close as possible.\n\n`;
+  }
+
+  // CTA override
+  if (ctaOverride?.phrase) {
+    prompt += `CTA OVERRIDE — use this exact phrase as the final CTA, do not paraphrase:\n"${ctaOverride.phrase}"\n\n`;
   }
 
   // Toggle instructions

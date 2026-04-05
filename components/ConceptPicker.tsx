@@ -6,7 +6,7 @@ interface ConceptPickerProps {
   concepts: ScriptConcept[];
   selected: string | null;
   onSelect: (id: string) => void;
-  onContinue: () => void;
+  onContinue?: () => void;
   isLoading: boolean;
   error?: string | null;
 }

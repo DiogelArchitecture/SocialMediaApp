@@ -17,6 +17,7 @@ import { parseAnalysis, type ParsedAnalysis } from "@/lib/analyse";
 import type { ScrapeStep } from "@/components/ScrapeProgress";
 import type { SpinoffIdea } from "@/lib/analyse";
 import type { ScriptConcept } from "@/app/api/concepts/route";
+import CTASelector, { DEFAULT_CTA_PHRASES } from "@/components/CTASelector";
 
 const RANDOM_TOPICS = [
   "Loft conversion planning mistakes",
@@ -65,16 +66,23 @@ export default function Home() {
   const [tone, setTone] = useState<Tone>("Calm authority");
   const [toggles, setToggles] = useState<Toggles>(DEFAULT_TOGGLES);
 
-  // Step 2 — hooks
+  // Step 2 — scrape + hooks
   const [patterns, setPatterns] = useState<PatternData | null>(null);
+  const [rawPosts, setRawPosts] = useState<Array<{
+    url?: string; platform: string; views?: number; likes?: number;
+    comments?: number; shares?: number; engagement_rate?: number; caption?: string;
+  }>>([]);
+  const [scrapeLoading, setScrapeLoading] = useState(false);
+  const [scrapeError, setScrapeError] = useState<string | null>(null);
   const [selectedHook, setSelectedHook] = useState<string | null>(null);
-  const [hooksLoading, setHooksLoading] = useState(false);
 
-  // Step 3 — concepts
+  // Step 3 — concepts + CTA
   const [concepts, setConcepts] = useState<ScriptConcept[]>([]);
   const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null);
   const [conceptsLoading, setConceptsLoading] = useState(false);
   const [conceptsError, setConceptsError] = useState<string | null>(null);
+  const [ctaType, setCtaType] = useState<"soft" | "hard" | "curiosity" | null>(null);
+  const [ctaPhrase, setCtaPhrase] = useState<string>("");
 
   // Step 4 — script
   const [rawOutput, setRawOutput] = useState("");
@@ -103,31 +111,74 @@ export default function Home() {
     setConcepts([]);
     setSelectedConceptId(null);
     setConceptsError(null);
+    setCtaType(null);
+    setCtaPhrase("");
   }
 
   function handleBack() {
-    if (step === 2) { setStep(1); setSelectedHook(null); }
-    else if (step === 3) { setStep(2); setSelectedConceptId(null); setConcepts([]); }
+    if (step === 2) { setStep(1); setSelectedHook(null); setRawPosts([]); setScrapeError(null); }
+    else if (step === 3) { setStep(2); setSelectedConceptId(null); setConcepts([]); setCtaType(null); setCtaPhrase(""); }
     else if (step === 4) { setStep(3); resetOutputState(); }
   }
 
-  // Step 1 → 2: load hooks
-  async function handleFindHooks() {
-    setHooksLoading(true);
+  // Step 1 → 2: scrape (forge) or load cached patterns (quick)
+  async function handleFindHooks(topicOverride?: string) {
+    const activeTopic = topicOverride ?? topic;
+    setScrapeLoading(true);
+    setScrapeError(null);
+    setRawPosts([]);
+    setPatterns(null);
     setStep(2);
+
+    // Forge mode: try live Apify scrape first
+    if (mode === "forge") {
+      try {
+        const res = await fetch("/api/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ platform, keyword: activeTopic, forceFresh: true }),
+        });
+        if (res.body) {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            for (const line of decoder.decode(value).split("\n").filter(l => l.startsWith("data: "))) {
+              const json = line.slice(6).trim();
+              if (!json || json === "[DONE]") continue;
+              try {
+                const msg = JSON.parse(json);
+                if (msg.done) {
+                  if (msg.patterns) setPatterns(msg.patterns);
+                  if (msg.rawPosts) setRawPosts(msg.rawPosts);
+                  if (msg.error && !msg.patterns) setScrapeError(msg.error);
+                }
+              } catch { /* ignore parse errors */ }
+            }
+          }
+          setScrapeLoading(false);
+          return;
+        }
+      } catch {
+        // Fall through to cached patterns
+      }
+    }
+
+    // Quick mode or scrape fallback: use cached/seed patterns
     try {
       const res = await fetch("/api/patterns");
       const data = await res.json();
-      // Find pattern matching topic or use seed
       const match = (data.patterns ?? []).find((p: { niche: string; data: PatternData }) =>
-        topic.toLowerCase().includes(p.niche.toLowerCase()) ||
-        p.niche.toLowerCase().includes(topic.toLowerCase().split(" ")[0])
+        activeTopic.toLowerCase().includes(p.niche.toLowerCase()) ||
+        p.niche.toLowerCase().includes(activeTopic.toLowerCase().split(" ")[0])
       );
       setPatterns(match?.data ?? (data.patterns?.[0]?.data ?? null));
+      if (mode === "forge") setScrapeError("Scrape unavailable — using cached patterns.");
     } catch {
       setPatterns(null);
     } finally {
-      setHooksLoading(false);
+      setScrapeLoading(false);
     }
   }
 
@@ -155,7 +206,18 @@ export default function Home() {
           if (!json || json === "[DONE]") continue;
           try {
             const msg = JSON.parse(json);
-            if (msg.concepts) setConcepts(msg.concepts);
+            if (msg.concepts) {
+              setConcepts(msg.concepts);
+              // Pre-select CTA from first concept if not already set
+              const first = msg.concepts[0] as ScriptConcept;
+              if (first) {
+                const t = first.cta as "soft" | "hard" | "curiosity";
+                setCtaType(t);
+                setCtaPhrase(
+                  (patterns?.ctas?.find(c => c.type === t)?.phrase) ?? DEFAULT_CTA_PHRASES[t]
+                );
+              }
+            }
             if (msg.error) setConceptsError(msg.error);
           } catch { /* ignore */ }
         }
@@ -175,15 +237,15 @@ export default function Home() {
     setGenerateError(null);
     setStep(4);
 
-    if (mode === "forge" && toggles.scrapeFresh) {
-      await runScrape();
-    }
-
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, platform, duration, location, audience, hookStyle, tone, toggles, mode, selectedConcept }),
+        body: JSON.stringify({
+          topic, platform, duration, location, audience, hookStyle, tone, toggles, mode,
+          selectedConcept,
+          ctaOverride: ctaType && ctaPhrase ? { type: ctaType, phrase: ctaPhrase } : null,
+        }),
       });
       if (!res.body) throw new Error("No response body");
       const reader = res.body.getReader();
@@ -209,7 +271,7 @@ export default function Home() {
     }
   }
 
-  // Random: pick topic, skip to script immediately
+  // Random: pick topic then go through the normal hook → concept → script flow
   async function handleRandom() {
     const randomTopic = RANDOM_TOPICS[Math.floor(Math.random() * RANDOM_TOPICS.length)];
     setTopic(randomTopic);
@@ -217,99 +279,10 @@ export default function Home() {
     setSelectedConceptId(null);
     setConcepts([]);
     setConceptsError(null);
-
-    // Build concept first then generate
-    setConceptsLoading(true);
-    setStep(3);
-    let pickedConcept: ScriptConcept | null = null;
-    try {
-      const res = await fetch("/api/concepts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: randomTopic, platform, duration, location, audience, tone }),
-      });
-      if (res.body) {
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          for (const line of decoder.decode(value).split("\n").filter(l => l.startsWith("data: "))) {
-            const json = line.slice(6).trim();
-            if (!json || json === "[DONE]") continue;
-            try {
-              const msg = JSON.parse(json);
-              if (msg.concepts?.length) { setConcepts(msg.concepts); pickedConcept = msg.concepts[0]; }
-            } catch { /* ignore */ }
-          }
-        }
-      }
-    } catch { /* fallback to no concept */ } finally {
-      setConceptsLoading(false);
-    }
-
-    // Generate with picked concept
-    setIsGenerating(true);
+    setCtaType(null);
+    setCtaPhrase("");
     setRawOutput("");
-    setGenerateError(null);
-    setStep(4);
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: randomTopic, platform, duration, location, audience, hookStyle, tone, toggles, mode, selectedConcept: pickedConcept }),
-      });
-      if (!res.body) throw new Error("No response body");
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        for (const line of decoder.decode(value).split("\n").filter(l => l.startsWith("data: "))) {
-          const json = line.slice(6).trim();
-          if (!json || json === "[DONE]") continue;
-          try {
-            const msg = JSON.parse(json);
-            if (msg.text) { accumulated += msg.text; setRawOutput(accumulated); }
-            if (msg.error) setGenerateError(msg.error);
-          } catch { /* ignore */ }
-        }
-      }
-    } catch (err) {
-      setGenerateError(err instanceof Error ? err.message : "Random generation failed");
-    } finally {
-      setIsGenerating(false);
-    }
-  }
-
-  async function runScrape(): Promise<void> {
-    setScrapeStep("scraping");
-    return new Promise(resolve => {
-      fetch("/api/scrape", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ platform, keyword: topic, forceFresh: toggles.scrapeFresh }),
-      }).then(async res => {
-        if (!res.body) { setScrapeStep("idle"); resolve(); return; }
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          for (const line of decoder.decode(value).split("\n").filter(l => l.startsWith("data: "))) {
-            const json = line.slice(6).trim();
-            if (!json || json === "[DONE]") continue;
-            try {
-              const msg = JSON.parse(json);
-              if (msg.step) { setScrapeStep(msg.step as ScrapeStep); setScrapeDetail(msg.detail); }
-              if (msg.done) { setScrapeStep("idle"); resolve(); return; }
-            } catch { /* ignore */ }
-          }
-        }
-        setScrapeStep("idle"); resolve();
-      }).catch(() => { setScrapeStep("idle"); resolve(); });
-    });
+    await handleFindHooks(randomTopic);
   }
 
   async function handleAnalyse() {
@@ -356,6 +329,12 @@ export default function Home() {
     setMode("forge");
     setStep(1);
     resetOutputState();
+  }
+
+  function formatNum(n: number): string {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(0)}k`;
+    return String(n);
   }
 
   const briefReady = topic.trim().length > 2 && location.trim().length > 2;
@@ -513,7 +492,7 @@ export default function Home() {
 
                     {/* Action buttons */}
                     <div className="flex gap-3 pt-1">
-                      <button onClick={handleFindHooks} disabled={!briefReady}
+                      <button onClick={() => handleFindHooks()} disabled={!briefReady}
                         className={`flex-1 py-3.5 text-sm transition-all ${briefReady ? "bg-[#E8FF47] text-[#0A0A0B] hover:bg-[#d4eb2a] btn-generate-ready cursor-pointer" : "bg-[#1E1E24] text-[#6B6B72] cursor-not-allowed"}`}
                         style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.1em" }}>
                         FIND HOOKS →
@@ -521,36 +500,149 @@ export default function Home() {
                       <button onClick={handleRandom}
                         className="px-4 py-3.5 text-sm border border-[#1E1E24] text-[#6B6B72] hover:border-[#FF4F1F]/60 hover:text-[#FF4F1F] transition-all cursor-pointer flex-shrink-0"
                         style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.08em" }}
-                        title="Pick a random UK renovation topic and skip straight to the script">
+                        title="Pick a random UK renovation topic and start the pipeline">
                         RANDOM
                       </button>
                     </div>
-                    <p className="text-xs text-[#6B6B72]/60 text-center" style={{ fontFamily: "DM Mono, monospace" }}>RANDOM picks a UK reno topic and generates immediately</p>
+                    <p className="text-xs text-[#6B6B72]/60 text-center" style={{ fontFamily: "DM Mono, monospace" }}>RANDOM seeds a topic — you still pick the hook, concept &amp; CTA</p>
                   </div>
                 )}
 
-                {/* ── STEP 2: HOOKS ── */}
+                {/* ── STEP 2: SCRAPE + HOOKS ── */}
                 {step === 2 && (
-                  <HookPicker
-                    patterns={patterns}
-                    topic={topic}
-                    selected={selectedHook}
-                    onSelect={setSelectedHook}
-                    onContinue={handleBuildConcepts}
-                    isLoading={hooksLoading}
-                  />
+                  <div className="space-y-4">
+                    {/* Scraping in progress */}
+                    {scrapeLoading && (
+                      <div className="border border-[#E8FF47]/20 bg-[#E8FF47]/3 p-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="flex gap-1">
+                            {[0,150,300].map(d => (
+                              <div key={d} className="w-1.5 h-1.5 rounded-full bg-[#E8FF47] animate-bounce" style={{ animationDelay: `${d}ms` }} />
+                            ))}
+                          </div>
+                          <span className="text-xs font-mono text-[#E8FF47]">Scraping {platform}...</span>
+                        </div>
+                        <p className="text-xs text-[#6B6B72] font-mono">Fetching real posts and extracting engagement data</p>
+                      </div>
+                    )}
+
+                    {/* Scrape results panel */}
+                    {!scrapeLoading && rawPosts.length > 0 && (
+                      <div className="border border-[#E8FF47]/20 bg-[#E8FF47]/3 p-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#E8FF47]" />
+                          <span className="text-xs text-[#E8FF47] uppercase tracking-widest" style={{ fontFamily: "Anton, sans-serif" }}>
+                            {rawPosts.length} posts scraped from {platform}
+                          </span>
+                        </div>
+                        <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                          {rawPosts.map((post, i) => (
+                            <div key={i} className="flex items-start gap-3 py-2 border-b border-[#E8FF47]/10 last:border-0">
+                              <span className="text-xs font-mono text-[#6B6B72]/60 w-4 flex-shrink-0 pt-0.5">{i + 1}</span>
+                              <div className="flex-1 min-w-0 space-y-0.5">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                  {post.views != null && (
+                                    <span className="text-xs font-mono text-[#F2F2F0]">{formatNum(post.views)} views</span>
+                                  )}
+                                  {post.engagement_rate != null && (
+                                    <span className="text-xs font-mono text-[#E8FF47]">ER {(post.engagement_rate * 100).toFixed(1)}%</span>
+                                  )}
+                                  {post.likes != null && (
+                                    <span className="text-xs font-mono text-[#6B6B72]">{formatNum(post.likes)} likes</span>
+                                  )}
+                                </div>
+                                {post.caption && (
+                                  <p className="text-xs text-[#6B6B72] font-mono line-clamp-1">{post.caption}</p>
+                                )}
+                              </div>
+                              {post.url && (
+                                <a
+                                  href={post.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={e => e.stopPropagation()}
+                                  className="text-xs text-[#6B6B72] hover:text-[#E8FF47] flex-shrink-0 border border-[#1E1E24] hover:border-[#E8FF47]/50 px-2 py-0.5 transition-colors"
+                                  style={{ fontFamily: "Inter, sans-serif" }}
+                                >
+                                  Watch →
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cached data notice */}
+                    {!scrapeLoading && scrapeError && (
+                      <div className="text-xs text-[#6B6B72] font-mono bg-[#111114] border border-[#1E1E24] px-3 py-2">
+                        ⚠ {scrapeError}
+                      </div>
+                    )}
+
+                    {/* Hook picker */}
+                    {!scrapeLoading && (
+                      <HookPicker
+                        patterns={patterns}
+                        topic={topic}
+                        selected={selectedHook}
+                        onSelect={setSelectedHook}
+                        onContinue={handleBuildConcepts}
+                        isLoading={false}
+                      />
+                    )}
+                  </div>
                 )}
 
-                {/* ── STEP 3: CONCEPTS ── */}
+                {/* ── STEP 3: CONCEPTS + CTA ── */}
                 {step === 3 && (
-                  <ConceptPicker
-                    concepts={concepts}
-                    selected={selectedConceptId}
-                    onSelect={setSelectedConceptId}
-                    onContinue={handleGenerateScript}
-                    isLoading={conceptsLoading}
-                    error={conceptsError}
-                  />
+                  <div className="space-y-4">
+                    <ConceptPicker
+                      concepts={concepts}
+                      selected={selectedConceptId}
+                      onSelect={(id) => {
+                        setSelectedConceptId(id);
+                        if (id) {
+                          const concept = concepts.find(c => c.id === id);
+                          if (concept) {
+                            const t = concept.cta as "soft" | "hard" | "curiosity";
+                            setCtaType(t);
+                            setCtaPhrase(
+                              (patterns?.ctas?.find(c => c.type === t)?.phrase) ?? DEFAULT_CTA_PHRASES[t]
+                            );
+                          }
+                        }
+                      }}
+                      isLoading={conceptsLoading}
+                      error={conceptsError}
+                    />
+
+                    {/* CTA selector — appears once a concept is chosen */}
+                    {selectedConceptId && !conceptsLoading && (
+                      <div className="border-t border-[#1E1E24] pt-4 space-y-4">
+                        <CTASelector
+                          selected={ctaType}
+                          phrase={ctaPhrase}
+                          patterns={patterns}
+                          onSelectType={(t) => {
+                            setCtaType(t);
+                            setCtaPhrase(
+                              (patterns?.ctas?.find(c => c.type === t)?.phrase) ?? DEFAULT_CTA_PHRASES[t]
+                            );
+                          }}
+                          onEditPhrase={setCtaPhrase}
+                        />
+                        <button
+                          onClick={handleGenerateScript}
+                          disabled={!ctaType}
+                          className={`w-full py-3.5 text-sm transition-all ${ctaType ? "bg-[#E8FF47] text-[#0A0A0B] hover:bg-[#d4eb2a] btn-generate-ready cursor-pointer" : "bg-[#1E1E24] text-[#6B6B72] cursor-not-allowed"}`}
+                          style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.1em" }}
+                        >
+                          GENERATE FULL SCRIPT →
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {/* ── STEP 4: SCRIPT (left panel summary) ── */}
