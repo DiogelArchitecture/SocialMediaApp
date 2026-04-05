@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.ANTHROPIC_API_KEY.replace(/[\u2013\u2014\u2212]/g, "-").trim();
 
     const patterns = readPatterns(platform, topic);
-    const userPrompt = buildUserPrompt({ ...body, patterns });
+    const userPrompt = buildUserPrompt({ ...body, patterns, selectedConcept: body.selectedConcept ?? null });
     const client = new Anthropic({ apiKey });
 
     let streamStarted = false;

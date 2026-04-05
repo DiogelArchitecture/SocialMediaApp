@@ -22,6 +22,16 @@ export interface PatternData {
   platform?: string;
 }
 
+export interface SelectedConcept {
+  id: string;
+  title: string;
+  belief: string;
+  hook: string;
+  premise: string;
+  format: string;
+  cta: "soft" | "hard" | "curiosity";
+}
+
 export interface BuildPromptParams {
   topic: string;
   platform: Platform;
@@ -33,10 +43,11 @@ export interface BuildPromptParams {
   toggles: Toggles;
   patterns?: PatternData | null;
   mode: "quick" | "forge";
+  selectedConcept?: SelectedConcept | null;
 }
 
 export function buildUserPrompt(params: BuildPromptParams): string {
-  const { topic, platform, duration, location, audience, hookStyle, tone, toggles, patterns, mode } = params;
+  const { topic, platform, duration, location, audience, hookStyle, tone, toggles, patterns, mode, selectedConcept } = params;
 
   let prompt = "";
 
@@ -87,6 +98,18 @@ export function buildUserPrompt(params: BuildPromptParams): string {
   }
 
   prompt += "\n";
+
+  // Selected concept (from pipeline step 3)
+  if (selectedConcept) {
+    prompt += `SELECTED CONCEPT — use this as the creative backbone for the script:\n`;
+    prompt += `Title: ${selectedConcept.title}\n`;
+    prompt += `Format: ${selectedConcept.format}\n`;
+    prompt += `Opening hook line: "${selectedConcept.hook}"\n`;
+    prompt += `Belief this challenges: ${selectedConcept.belief}\n`;
+    prompt += `Premise / structure: ${selectedConcept.premise}\n`;
+    prompt += `CTA type: ${selectedConcept.cta}\n`;
+    prompt += `Build the full script from this concept. Keep the hook line verbatim or as close as possible.\n\n`;
+  }
 
   // Toggle instructions
   if (toggles.packagingIdeas) {
