@@ -110,7 +110,7 @@ export async function scrapeContent(
   const actorId = ACTOR_IDS[platform];
 
   const tiers = buildSearchTiers(keyword);
-  const MIN_RESULTS = 5;
+  const MIN_RESULTS = 3; // widen tiers only if we find fewer than 3 posts
   let allPosts: ScrapedPost[] = [];
 
   for (let i = 0; i < tiers.length; i++) {
@@ -125,7 +125,7 @@ export async function scrapeContent(
 
         const posts = (items as Record<string, unknown>[])
           .map((item) => normalisePost(item, platform))
-          .filter((p) => (p.engagement_rate ?? 0) > 0.02); // 2% ER threshold — 5% was too strict for niche topics
+          .filter((p) => (p.views ?? 0) > 0); // only exclude posts with literally 0 views
 
         allPosts = allPosts.concat(posts);
       } catch (err) {
@@ -237,15 +237,15 @@ function buildSearchTiers(keyword: string): SearchTier[] {
 function buildActorInput(platform: Platform, searchTerm: string): Record<string, unknown> {
   switch (platform) {
     case "TikTok":
-      return { searchQueries: [searchTerm], maxItems: 25, shouldDownloadVideos: false };
+      return { searchQueries: [searchTerm], maxItems: 30, shouldDownloadVideos: false };
     case "Instagram Reels":
-      return { hashtags: [searchTerm.replace(/\s+/g, "")], resultsLimit: 25 };
+      return { hashtags: [searchTerm.replace(/\s+/g, "")], resultsLimit: 30 };
     case "YouTube Shorts":
-      return { searchKeywords: [searchTerm], maxResults: 25, type: "shorts" };
+      return { searchKeywords: [searchTerm], maxResults: 30, type: "shorts" };
     case "Facebook Reels":
-      return { searchQuery: searchTerm, maxPosts: 25 };
+      return { searchQuery: searchTerm, maxPosts: 30 };
     default:
-      return { searchQuery: searchTerm, maxItems: 25 };
+      return { searchQuery: searchTerm, maxItems: 30 };
   }
 }
 
