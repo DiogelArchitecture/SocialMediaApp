@@ -14,8 +14,23 @@ export interface Toggles {
   scrapeFresh: boolean;
 }
 
+export interface HookSource {
+  text: string;
+  pattern_type: string;
+  avg_er: number;
+  sample_count: number;
+  // Source video data — present when scraped via Apify
+  source_url?: string;
+  source_platform?: string;
+  views?: number;
+  likes?: number;
+  comments?: number;
+  shares?: number;
+  scraped_from?: string; // search term that surfaced this video
+}
+
 export interface PatternData {
-  hooks: Array<{ text: string; pattern_type: string; avg_er: number; sample_count: number }>;
+  hooks: Array<HookSource>;
   ctas: Array<{ phrase: string; type: "soft" | "hard" | "curiosity"; signal: string }>;
   formats: Array<{ description: string; structure: string }>;
   scrapedAt?: string;

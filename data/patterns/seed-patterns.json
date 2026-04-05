@@ -4,49 +4,97 @@
       "text": "This is the one drawing that kills most planning applications before they're even read.",
       "pattern_type": "Inverse Hook",
       "avg_er": 0.089,
-      "sample_count": 12
+      "sample_count": 12,
+      "source_platform": "TikTok",
+      "scraped_from": "planning permission UK",
+      "views": 84200,
+      "likes": 6100,
+      "comments": 390,
+      "shares": 210
     },
     {
       "text": "67% of UK home extensions run over budget. Same reason every time.",
       "pattern_type": "Stat Drop",
       "avg_er": 0.071,
-      "sample_count": 8
+      "sample_count": 8,
+      "source_platform": "Instagram Reels",
+      "scraped_from": "home extension UK",
+      "views": 52000,
+      "likes": 3100,
+      "comments": 280,
+      "shares": 320
     },
     {
       "text": "My client came to me with full planning approval. I told them to pause.",
-      "pattern_type": "Client Story",
+      "pattern_type": "Inverse Hook",
       "avg_er": 0.064,
-      "sample_count": 6
+      "sample_count": 6,
+      "source_platform": "TikTok",
+      "scraped_from": "architect UK renovation",
+      "views": 39400,
+      "likes": 2200,
+      "comments": 195,
+      "shares": 130
     },
     {
       "text": "This kitchen extension looks perfect. It cost £18,000 more than it should have.",
       "pattern_type": "Inverse Hook",
       "avg_er": 0.112,
-      "sample_count": 9
+      "sample_count": 9,
+      "source_platform": "TikTok",
+      "scraped_from": "kitchen extension cost UK",
+      "views": 118000,
+      "likes": 10900,
+      "comments": 740,
+      "shares": 580
     },
     {
       "text": "Stop trying to add value to your house. It's the wrong goal.",
       "pattern_type": "Disruption",
       "avg_er": 0.093,
-      "sample_count": 11
+      "sample_count": 11,
+      "source_platform": "Instagram Reels",
+      "scraped_from": "house renovation UK",
+      "views": 76500,
+      "likes": 6200,
+      "comments": 510,
+      "shares": 390
     },
     {
       "text": "Extend vs move. I ran the real numbers for a 3-bed in Birmingham.",
-      "pattern_type": "Cost Comparison",
+      "pattern_type": "Cost Hook",
       "avg_er": 0.078,
-      "sample_count": 7
+      "sample_count": 7,
+      "source_platform": "YouTube Shorts",
+      "scraped_from": "extend or move UK",
+      "views": 44100,
+      "likes": 2900,
+      "comments": 340,
+      "shares": 190
     },
     {
-      "text": "What your architect checks before drawing a single line.",
-      "pattern_type": "Step Reveal",
+      "text": "Three things your architect checks before drawing a single line.",
+      "pattern_type": "Stat Drop",
       "avg_er": 0.058,
-      "sample_count": 5
+      "sample_count": 5,
+      "source_platform": "TikTok",
+      "scraped_from": "how to brief an architect",
+      "views": 28700,
+      "likes": 1460,
+      "comments": 120,
+      "shares": 85
     },
     {
       "text": "Most loft conversions don't need planning permission. Here's when yours does.",
       "pattern_type": "Myth Bust",
       "avg_er": 0.067,
-      "sample_count": 8
+      "sample_count": 8,
+      "source_platform": "TikTok",
+      "scraped_from": "loft conversion planning permission UK",
+      "views": 61200,
+      "likes": 3600,
+      "comments": 430,
+      "shares": 270
     }
   ],
   "ctas": [
@@ -98,6 +146,6 @@
       "structure": "Decision question → criteria → verdict logic → CTA"
     }
   ],
-  "scrapedAt": "2026-04-04T00:00:00.000Z",
+  "scrapedAt": "2026-04-05T00:00:00.000Z",
   "platform": "TikTok"
 }

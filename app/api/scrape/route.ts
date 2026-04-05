@@ -2,12 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { scrapeContent } from "@/lib/apify";
 import { writePatterns } from "@/lib/pattern-store";
-import type { Platform } from "@/lib/build-prompt";
-import type { PatternData } from "@/lib/build-prompt";
+import type { Platform, PatternData, HookSource } from "@/lib/build-prompt";
 
 export const runtime = "nodejs";
 
-const EXTRACTION_SYSTEM = `You are a content pattern analyst. Extract structured engagement patterns from the following social media posts. Return JSON only — no explanation, no markdown fences.`;
+// Extract the opening hook from a caption/transcript — first sentence, max 180 chars
+function extractHookLine(text: string): string {
+  if (!text) return "";
+  const clean = text.trim().replace(/\n+/g, " ");
+  const match = clean.match(/^(.{10,180}?[.!?])\s/);
+  if (match) return match[1].trim();
+  return clean.slice(0, 150).trim();
+}
+
+const CTA_SYSTEM = `You are a content pattern analyst. Extract CTAs and structural formats from social media posts. Return JSON only — no explanation, no markdown.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,14 +29,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "platform and keyword required" }, { status: 400 });
     }
 
-    // Stream progress events via SSE
     const encoder = new TextEncoder();
 
     const readableStream = new ReadableStream({
       async start(controller) {
         function send(step: string, detail?: string) {
-          const data = `data: ${JSON.stringify({ step, detail })}\n\n`;
-          controller.enqueue(encoder.encode(data));
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ step, detail })}\n\n`));
         }
 
         try {
@@ -46,49 +52,74 @@ export async function POST(request: NextRequest) {
 
           send("extracting", "Extracting patterns...");
 
-          const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+          // ── HOOKS: extract directly from posts, preserving source URL + stats ──
+          // No Claude needed — take opening line from each post's caption/transcript
+          const hooks: HookSource[] = posts
+            .sort((a, b) => (b.engagement_rate ?? 0) - (a.engagement_rate ?? 0))
+            .slice(0, 12)
+            .reduce<HookSource[]>((acc, p) => {
+              const hookText = extractHookLine(p.caption || p.transcript || "");
+              if (!hookText || hookText.length <= 8) return acc;
+              acc.push({
+                text: hookText,
+                pattern_type: classifyHookPattern(hookText),
+                avg_er: p.engagement_rate ?? 0,
+                sample_count: 1,
+                source_url: p.url || undefined,
+                source_platform: platform,
+                views: p.views || undefined,
+                likes: p.likes || undefined,
+                comments: p.comments || undefined,
+                shares: p.shares || undefined,
+                scraped_from: keyword,
+              });
+              return acc;
+            }, []);
+
+          // ── CTAs + FORMATS: still use Claude (harder to extract without NLP) ──
+          const apiKey = (process.env.ANTHROPIC_API_KEY || "").replace(/[\u2013\u2014\u2212]/g, "-").trim();
+          const client = new Anthropic({ apiKey });
 
           const postsJson = JSON.stringify(
-            posts.map((p) => ({
-              caption: p.caption,
-              transcript: p.transcript?.slice(0, 500),
+            posts.slice(0, 10).map((p) => ({
+              caption: p.caption?.slice(0, 400),
               engagement_rate: p.engagement_rate,
-              views: p.views,
-              likes: p.likes,
-              comments: p.comments,
-              shares: p.shares,
             })),
             null,
             2
           );
 
-          const extractionPrompt = `Extract structured engagement patterns from these ${platform} posts about "${keyword}".\n\nPosts:\n${postsJson}\n\nReturn this exact JSON structure:\n{\n  "hooks": [{ "text": "...", "pattern_type": "...", "avg_er": 0.0, "sample_count": 0 }],\n  "ctas": [{ "phrase": "...", "type": "soft|hard|curiosity", "signal": "..." }],\n  "formats": [{ "description": "...", "structure": "..." }]\n}`;
+          const ctaPrompt = `Analyse these ${platform} posts about "${keyword}" and extract:\n1. CTAs (calls to action in the captions/transcripts)\n2. Structural formats that appear\n\nPosts:\n${postsJson}\n\nReturn:\n{\n  "ctas": [{ "phrase": "...", "type": "soft|hard|curiosity", "signal": "..." }],\n  "formats": [{ "description": "...", "structure": "..." }]\n}`;
 
-          const response = await client.messages.create({
-            model: "claude-sonnet-4-6",
-            max_tokens: 1024,
-            system: EXTRACTION_SYSTEM,
-            messages: [{ role: "user", content: extractionPrompt }],
-          });
+          let ctas: PatternData["ctas"] = [];
+          let formats: PatternData["formats"] = [];
 
-          const rawJson = response.content[0].type === "text" ? response.content[0].text : "{}";
-
-          let patterns: PatternData;
           try {
+            const response = await client.messages.create({
+              model: "claude-sonnet-4-6",
+              max_tokens: 800,
+              system: CTA_SYSTEM,
+              messages: [{ role: "user", content: ctaPrompt }],
+            });
+            const rawJson = response.content[0].type === "text" ? response.content[0].text : "{}";
             const parsed = JSON.parse(rawJson.replace(/```json\n?|\n?```/g, "").trim());
-            patterns = {
-              ...parsed,
-              scrapedAt: new Date().toISOString(),
-              platform,
-            };
+            ctas = parsed.ctas ?? [];
+            formats = parsed.formats ?? [];
           } catch {
-            patterns = { hooks: [], ctas: [], formats: [], scrapedAt: new Date().toISOString(), platform };
+            // CTAs/formats extraction failed — hooks still saved
           }
 
-          // Save to pattern library
+          const patterns: PatternData = {
+            hooks,
+            ctas,
+            formats,
+            scrapedAt: new Date().toISOString(),
+            platform,
+          };
+
           writePatterns(platform, keyword, patterns);
 
-          send("done", "Patterns extracted and saved.");
+          send("done", `${hooks.length} hooks with source links saved.`);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, patterns })}\n\n`));
           controller.close();
         } catch (err) {
@@ -111,4 +142,15 @@ export async function POST(request: NextRequest) {
     console.error("Scrape route error:", err);
     return NextResponse.json({ error: "Scrape failed" }, { status: 500 });
   }
+}
+
+function classifyHookPattern(text: string): string {
+  const t = text.toLowerCase();
+  if (t.match(/^\d+(%|k|m|\s+(reason|thing|mistake|step|way|tip))/)) return "Stat Drop";
+  if (t.includes("everyone thinks") || t.includes("most people") || t.includes("myth")) return "Myth Bust";
+  if (t.includes("stop ") || t.includes("never ") || t.includes("wrong")) return "Disruption";
+  if (t.includes("?")) return "Question";
+  if (t.includes("before") && t.includes("after")) return "Before/After";
+  if (t.match(/\b(£|\$)\d/) || t.includes("cost") || t.includes("price")) return "Cost Hook";
+  return "Inverse Hook";
 }
