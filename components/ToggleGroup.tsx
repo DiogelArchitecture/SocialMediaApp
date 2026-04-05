@@ -18,7 +18,7 @@ interface ToggleDef {
 
 const TOGGLE_DEFS: ToggleDef[] = [
   { key: "viralCut", label: "Full viral cut", description: "30s HOOK / RETAIN / REWARD version" },
-  { key: "shotBreakdown", label: "Shot-by-shot breakdown", description: "Numbered shots with camera direction" },
+  { key: "shotList", label: "Shot list", description: "Numbered shots with visual, audio & text" },
   { key: "propsList", label: "Props list", description: "Min 3 props with usage and rationale", forgeOnly: true },
   { key: "editNotes", label: "Edit notes", description: "Cuts, captions, overlays, loop mechanic", forgeOnly: true },
   { key: "vfxIdeas", label: "VFX / AI overlay ideas", description: "Specific VFX moments for editor", forgeOnly: true },

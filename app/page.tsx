@@ -33,7 +33,7 @@ const RANDOM_TOPICS = [
 
 const DEFAULT_TOGGLES: Toggles = {
   viralCut: true,
-  shotBreakdown: true,
+  shotList: true,
   propsList: true,
   editNotes: true,
   vfxIdeas: false,
@@ -43,7 +43,7 @@ const DEFAULT_TOGGLES: Toggles = {
 
 const DEFAULT_TOGGLES_QUICK: Toggles = {
   viralCut: true,
-  shotBreakdown: true,
+  shotList: true,
   propsList: false,
   editNotes: false,
   vfxIdeas: false,

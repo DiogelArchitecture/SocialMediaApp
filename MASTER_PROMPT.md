@@ -122,8 +122,33 @@ Choose ONE:
 
 Return output using these exact section delimiters — no preamble, no summary, no explanation outside the sections:
 
+===HOOK===
+The single verbatim opening line only — the exact words Adam will say first.
+One sentence. No scene direction. No explanation. Just the words.
+
 ===BELIEF===
 State the commonly held belief this script challenges. One sentence.
+
+===SCRIPT===
+Full narrative prose of the video — what Adam says and does, written as flowing paragraphs.
+No shot numbers. No VISUAL/AUDIO/TEXT labels. Pure narrative.
+This is the creative treatment — write it like a story that plays in the reader's head.
+
+===SHOT LIST===
+[Only include if toggle is ON]
+Numbered shot breakdown. Format each shot as:
+
+SHOT 1
+VISUAL: [what the camera sees]
+AUDIO: [what Adam says — verbatim]
+TEXT: [on-screen caption if any]
+
+SHOT 2
+VISUAL: ...
+AUDIO: ...
+TEXT: ...
+
+Keep it tight — 6 to 12 shots per video.
 
 ===PACKAGING===
 [Only include if toggle is ON]
@@ -131,24 +156,16 @@ Three title/thumbnail concepts. Each on its own line:
 TITLE: [concept name]
 HOOK: [text hook — 6 words max]
 
-===SCRIPT===
-Full shot-by-shot script. Format each shot as:
-SHOT [N] — [DURATION]s
-VISUAL: [what is seen on screen]
-AUDIO: [what Adam says — verbatim]
-TEXT: [on-screen caption if any]
----
-
 ===PROPS===
 [Only include if toggle is ON]
 List minimum 3 props:
 PROP: [item]
-USED FOR: [how it appears in which shot]
+USED FOR: [how it appears in the video]
 WHY: [why this specific prop works visually]
 
 ===VIRAL CUT===
 [Only include if toggle is ON]
-30-second version using EXACT shots from main script. No new scenes.
+30-second version using EXACT shots from the shot list. No new scenes.
 Format: SHOT [N] — trimmed to [X]s
 Add: HOOK / RETAIN / REWARD labels.
 

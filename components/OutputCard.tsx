@@ -20,8 +20,49 @@ export default function OutputCard({ section, content, onRegenerate, isStreaming
     setTimeout(() => setCopied(false), 2000);
   }
 
-  const accentColor = section === "belief" ? "#FF4F1F" : "#E8FF47";
+  const accentColor = section === "belief" ? "#FF4F1F" : section === "hook" ? "#E8FF47" : "#E8FF47";
 
+  // Hero treatment for the hook section
+  if (section === "hook") {
+    return (
+      <div className="card-enter bg-[#111114] border border-[#E8FF47]/30 overflow-hidden">
+        {/* Hero header */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#E8FF47]/20">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#E8FF47]" />
+            <span
+              className="text-xs uppercase tracking-widest text-[#E8FF47]"
+              style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.15em" }}
+            >
+              {SECTION_LABELS[section]}
+            </span>
+          </div>
+          <button
+            onClick={handleCopy}
+            className="text-xs text-[#6B6B72] hover:text-[#E8FF47] transition-colors px-2 py-1 border border-[#1E1E24] hover:border-[#E8FF47]/50"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            {copied ? "✓ Copied" : "Copy"}
+          </button>
+        </div>
+
+        {/* Hero content */}
+        <div className="px-5 py-6">
+          <p
+            className="text-[#E8FF47] leading-tight"
+            style={{ fontFamily: "Anton, sans-serif", fontSize: "clamp(1.4rem, 4vw, 2rem)", lineHeight: 1.15 }}
+          >
+            {content}
+            {isStreaming && (
+              <span className="inline-block w-2 h-6 bg-[#E8FF47] ml-1 animate-pulse" />
+            )}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard card for all other sections
   return (
     <div className="card-enter bg-[#111114] border border-[#1E1E24] overflow-hidden">
       {/* Card header */}

@@ -14,6 +14,17 @@ Only proceed if the topic challenges a commonly held belief.
 If it does not, reframe the topic until it does.
 State the belief being challenged before writing the script inside ===BELIEF=== section.
 
+## HOOK RULE
+The ===HOOK=== section contains ONLY the single opening line — the exact words spoken first.
+Nothing else. No scene direction, no explanation, no context.
+It must stop the scroll in 2 seconds. It must be a statement, claim, or hard number — never a yes/no question.
+
+## SHOT LIST RULE
+The ===SHOT LIST=== section uses numbered shots (SHOT 1, SHOT 2...) each with VISUAL, AUDIO, and TEXT fields.
+Keep shots tight — 6 to 12 shots per video.
+The shot list is the production blueprint. The script is the creative narrative.
+These are two separate sections — never combine them.
+
 ## FLEXIBILITY RULE
 Props, VFX, and metaphors are tools, not rules.
 If including them improves the script — include them.
@@ -26,19 +37,29 @@ Choose ONE CTA type based on the topic and tone:
 - Curiosity: "Comment 'PLANS' and I'll tell you exactly what yours needs."
 
 ## VIRAL CUT RULE
-The viral cut must reuse EXACT shots from the main script only — no new scenes.
+The viral cut must reuse EXACT shots from the shot list only — no new scenes.
 Reference shots by number (e.g. "SHOT 3 — trimmed to 1.5s").
 `;
 
 function loadMasterPrompt(): string {
+  let base = "";
+
   try {
     const filePath = path.join(process.cwd(), "MASTER_PROMPT.md");
-    const base = fs.readFileSync(filePath, "utf-8");
-    return base + ADDITIONS;
+    base = fs.readFileSync(filePath, "utf-8");
   } catch {
-    // Fallback if file can't be read (e.g. unusual deployment path)
-    return `You are Adam Mokhtar's personal content strategist and scriptwriter for Diogel Architecture and the RePlanIt brand. Generate short-form video scripts for UK home renovation content. Use UK English. Grade 3 reading level. No AI language. Hooks must stop the scroll in 2 seconds.` + ADDITIONS;
+    base = `You are Adam Mokhtar's personal content strategist and scriptwriter for Diogel Architecture and the RePlanIt brand. Generate short-form video scripts for UK home renovation content. Use UK English. Grade 3 reading level. No AI language. Hooks must stop the scroll in 2 seconds.`;
   }
+
+  let avatarIntel = "";
+  try {
+    const avatarPath = path.join(process.cwd(), "data", "knowledge", "customer-avatar.md");
+    avatarIntel = fs.readFileSync(avatarPath, "utf-8");
+  } catch {
+    // No avatar file — skip silently
+  }
+
+  return base + (avatarIntel ? `\n\n${avatarIntel}` : "") + ADDITIONS;
 }
 
 export const MASTER_PROMPT = loadMasterPrompt();

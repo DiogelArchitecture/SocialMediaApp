@@ -6,7 +6,7 @@ export type Tone = "High energy" | "Calm authority" | "Comedic" | "Urgent";
 
 export interface Toggles {
   viralCut: boolean;
-  shotBreakdown: boolean;
+  shotList: boolean;
   propsList: boolean;
   editNotes: boolean;
   vfxIdeas: boolean;
@@ -137,8 +137,8 @@ export function buildUserPrompt(params: BuildPromptParams): string {
     prompt += `Do not generate the viral cut version. Omit the ===VIRAL CUT=== section.\n`;
   }
 
-  if (!toggles.shotBreakdown) {
-    prompt += `Keep the ===SCRIPT=== section as a prose treatment only — no shot-by-shot breakdown required.\n`;
+  if (!toggles.shotList) {
+    prompt += `Do not include a ===SHOT LIST=== section.\n`;
   }
 
   if (!toggles.propsList) {

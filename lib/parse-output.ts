@@ -1,7 +1,9 @@
 export interface ParsedOutput {
+  hook?: string;
   belief?: string;
   packaging?: string;
   script?: string;
+  shotList?: string;
   props?: string;
   viralCut?: string;
   editNotes?: string;
@@ -10,9 +12,11 @@ export interface ParsedOutput {
 }
 
 const DELIMITERS = [
+  "===HOOK===",
   "===BELIEF===",
   "===PACKAGING===",
   "===SCRIPT===",
+  "===SHOT LIST===",
   "===PROPS===",
   "===VIRAL CUT===",
   "===EDIT NOTES===",
@@ -20,9 +24,11 @@ const DELIMITERS = [
 ] as const;
 
 const KEY_MAP: Record<string, keyof Omit<ParsedOutput, "raw">> = {
+  "===HOOK===": "hook",
   "===BELIEF===": "belief",
   "===PACKAGING===": "packaging",
   "===SCRIPT===": "script",
+  "===SHOT LIST===": "shotList",
   "===PROPS===": "props",
   "===VIRAL CUT===": "viralCut",
   "===EDIT NOTES===": "editNotes",
@@ -60,9 +66,11 @@ export function parseStreamingOutput(raw: string): ParsedOutput {
 export type SectionKey = keyof Omit<ParsedOutput, "raw">;
 
 export const SECTION_LABELS: Record<SectionKey, string> = {
+  hook: "Hook",
   belief: "Belief Being Challenged",
   packaging: "Packaging Ideas",
   script: "Script",
+  shotList: "Shot List",
   props: "Props List",
   viralCut: "Viral Cut",
   editNotes: "Edit Notes",
@@ -70,9 +78,11 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
 };
 
 export const SECTION_ORDER: SectionKey[] = [
+  "hook",
   "belief",
-  "packaging",
   "script",
+  "shotList",
+  "packaging",
   "props",
   "viralCut",
   "editNotes",
