@@ -47,11 +47,12 @@ export async function POST(request: NextRequest) {
             send("scraping", msg);
           });
 
-          send("filtering", `${posts.length} posts above 5% ER`);
+          send("filtering", `${posts.length} posts collected`);
 
           if (posts.length === 0) {
-            send("error", "No posts returned from Apify. The actor may have returned empty results for this search term.");
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, patterns: null })}\n\n`));
+            const noPostsMsg = "Apify returned no posts. Check that APIFY_API_TOKEN is set in Vercel → Settings → Environment Variables, then redeploy.";
+            send("error", noPostsMsg);
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, patterns: null, error: noPostsMsg })}\n\n`));
             controller.close();
             return;
           }

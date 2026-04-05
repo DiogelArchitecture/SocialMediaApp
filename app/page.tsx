@@ -165,15 +165,16 @@ export default function Home() {
             }
           }
         }
-      } catch {
-        // Fall through to cached patterns
+      } catch (netErr) {
+        const msg = netErr instanceof Error ? netErr.message : "Network error";
+        setScrapeError(`Scrape request failed: ${msg}`);
       }
       // Only stop here if we actually got live data
       if (scrapeGotPatterns) {
         setScrapeLoading(false);
         return;
       }
-      setScrapeError(prev => prev || "No results from scrape — using cached patterns.");
+      setScrapeError(prev => prev || "Scrape returned no posts — using cached patterns.");
     }
 
     // Quick mode or scrape fallback: use cached/seed patterns
