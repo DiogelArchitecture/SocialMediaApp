@@ -29,6 +29,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "platform and keyword required" }, { status: 400 });
     }
 
+    if (!process.env.APIFY_API_TOKEN) {
+      return NextResponse.json({ error: "APIFY_API_TOKEN is not set in environment variables. Add it in Vercel → Settings → Environment Variables." }, { status: 503 });
+    }
+
     const encoder = new TextEncoder();
 
     const readableStream = new ReadableStream({

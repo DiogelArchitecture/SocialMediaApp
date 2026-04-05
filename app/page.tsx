@@ -141,7 +141,10 @@ export default function Home() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ platform, keyword: activeTopic, forceFresh: true }),
         });
-        if (res.body) {
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          setScrapeError(errData.error || `Scrape failed (${res.status})`);
+        } else if (res.body) {
           const reader = res.body.getReader();
           const decoder = new TextDecoder();
           while (true) {
@@ -182,7 +185,9 @@ export default function Home() {
         p.niche.toLowerCase().includes(activeTopic.toLowerCase().split(" ")[0])
       );
       setPatterns(match?.data ?? (data.patterns?.[0]?.data ?? null));
-      if (mode === "forge") setScrapeError("Scrape unavailable — using cached patterns.");
+      // Keep specific error if we already have one (e.g. "APIFY_API_TOKEN not set")
+      // Only set generic fallback message if there's no specific error yet
+      if (mode === "forge") setScrapeError(prev => prev || "Scrape unavailable — using cached patterns.");
     } catch {
       setPatterns(null);
     } finally {
