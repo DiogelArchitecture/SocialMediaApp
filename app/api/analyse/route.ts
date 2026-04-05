@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
     }
 
     const userPrompt = buildAnalysePrompt(transcriptData);
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const apiKey = (process.env.ANTHROPIC_API_KEY || "").replace(/[\u2013\u2014\u2212]/g, "-").trim();
+    const client = new Anthropic({ apiKey });
 
     const stream = await client.messages.stream({
       model: "claude-sonnet-4-6",

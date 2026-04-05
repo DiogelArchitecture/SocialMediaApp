@@ -30,9 +30,12 @@ export async function POST(request: NextRequest) {
       return errStream("ANTHROPIC_API_KEY is not set. Add it in Vercel → Settings → Environment Variables.");
     }
 
+    // Sanitise key — iOS auto-correct can replace hyphens with en/em dashes
+    const apiKey = process.env.ANTHROPIC_API_KEY.replace(/[\u2013\u2014\u2212]/g, "-").trim();
+
     const patterns = readPatterns(platform, topic);
     const userPrompt = buildUserPrompt({ ...body, patterns });
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey });
 
     let streamStarted = false;
 
