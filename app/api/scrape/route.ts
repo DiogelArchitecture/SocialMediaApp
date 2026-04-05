@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
           send("filtering", `${posts.length} posts above 5% ER`);
 
           if (posts.length === 0) {
-            send("error", "No posts found above 5% engagement rate. Using cached patterns.");
+            send("error", "No posts found above 2% engagement rate. Using cached patterns.");
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, patterns: null })}\n\n`));
             controller.close();
             return;

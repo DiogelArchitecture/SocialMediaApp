@@ -134,6 +134,7 @@ export default function Home() {
 
     // Forge mode: try live Apify scrape first
     if (mode === "forge") {
+      let scrapeGotPatterns = false;
       try {
         const res = await fetch("/api/scrape", {
           method: "POST",
@@ -153,19 +154,23 @@ export default function Home() {
                 const msg = JSON.parse(json);
                 if (msg.step && msg.detail) setScrapeStatusMsg(msg.detail);
                 if (msg.done) {
-                  if (msg.patterns) setPatterns(msg.patterns);
+                  if (msg.patterns) { setPatterns(msg.patterns); scrapeGotPatterns = true; }
                   if (msg.rawPosts) setRawPosts(msg.rawPosts);
-                  if (msg.error && !msg.patterns) setScrapeError(msg.error);
+                  if (msg.error) setScrapeError(msg.error);
                 }
               } catch { /* ignore parse errors */ }
             }
           }
-          setScrapeLoading(false);
-          return;
         }
       } catch {
         // Fall through to cached patterns
       }
+      // Only stop here if we actually got live data
+      if (scrapeGotPatterns) {
+        setScrapeLoading(false);
+        return;
+      }
+      setScrapeError(prev => prev || "No results from scrape — using cached patterns.");
     }
 
     // Quick mode or scrape fallback: use cached/seed patterns
