@@ -206,7 +206,7 @@ export default function Home() {
       const res = await fetch("/api/concepts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, platform, duration, location, selectedHook, audience, tone }),
+        body: JSON.stringify({ topic, platform, duration, location, selectedHook, audience, tone, patterns }),
       });
       if (!res.body) throw new Error("No response");
       const reader = res.body.getReader();

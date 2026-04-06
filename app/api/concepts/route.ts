@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { readPatterns } from "@/lib/pattern-store";
 import { MASTER_PROMPT } from "@/lib/master-prompt";
-import type { Platform, Duration, Audience, Tone } from "@/lib/build-prompt";
+import type { Platform, Duration, Audience, Tone, PatternData } from "@/lib/build-prompt";
 
 export const runtime = "nodejs";
 
@@ -14,6 +13,7 @@ export interface ConceptRequest {
   selectedHook?: string;
   audience?: Audience;
   tone?: Tone;
+  patterns?: PatternData | null;
 }
 
 export interface ScriptConcept {
@@ -51,25 +51,43 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = (await request.json()) as ConceptRequest;
-    const { topic, platform, duration, location, selectedHook, audience, tone } = body;
+    const { topic, platform, duration, location, selectedHook, audience, tone, patterns } = body;
 
     const apiKey = (process.env.ANTHROPIC_API_KEY || "").replace(/[\u2013\u2014\u2212]/g, "-").trim();
     if (!apiKey) return errStream("ANTHROPIC_API_KEY is not set.");
 
-    const patterns = readPatterns(platform, topic);
+    // Build context from live scraped patterns passed from the client
     const hookContext = selectedHook
-      ? `The user has selected this hook to build from:\n"${selectedHook}"\n\n`
+      ? `SELECTED HOOK — the user picked this from real scraped data. Build at least one concept that uses or riffs on it:\n"${selectedHook}"\n\n`
       : "";
 
-    const patternContext = patterns?.hooks?.length
-      ? `Top-performing hooks for reference:\n${patterns.hooks.slice(0, 4).map(h => `- "${h.text}" (ER: ${(h.avg_er * 100).toFixed(1)}%)`).join("\n")}\n\n`
-      : "";
+    let patternContext = "";
+    if (patterns?.hooks?.length) {
+      const hookLines = patterns.hooks
+        .slice(0, 8)
+        .map(h => {
+          const er = h.avg_er > 0 ? ` (ER ${(h.avg_er * 100).toFixed(1)}%${h.views ? `, ${(h.views / 1000).toFixed(0)}k views` : ""})` : "";
+          return `- "${h.text}"${er}`;
+        })
+        .join("\n");
+      patternContext += `REAL TOP-PERFORMING HOOKS scraped from ${platform} (use these patterns — opening style, word choice, tension):\n${hookLines}\n\n`;
+    }
+    if (patterns?.ctas?.length) {
+      const ctaLines = patterns.ctas.slice(0, 3).map(c => `- [${c.type}] "${c.phrase}"`).join("\n");
+      patternContext += `REAL CTAs from scraped posts:\n${ctaLines}\n\n`;
+    }
+    if (patterns?.formats?.length) {
+      const fmtLines = patterns.formats.slice(0, 3).map(f => `- ${f.description}`).join("\n");
+      patternContext += `FORMATS performing well on ${platform}:\n${fmtLines}\n\n`;
+    }
 
     const prompt = `${hookContext}${patternContext}Generate exactly 3 distinct script concepts for a ${duration} ${platform} video about: "${topic}"
 
 Shooting location: ${location}
 ${audience ? `Audience: ${audience}` : ""}
 ${tone ? `Tone: ${tone}` : ""}
+
+The scraped hook patterns above are real examples that got views on ${platform}. Mirror their opening energy and format style in your concept hooks.
 
 Return ONLY valid JSON — no markdown, no explanation:
 {
