@@ -91,12 +91,16 @@ function normalisePost(raw: Record<string, unknown>, platform: Platform): Scrape
 
 // Fixed niche terms — always scraped for renovation pattern intelligence regardless of topic.
 // The topic is used for script generation, NOT for what we search on TikTok.
+// Keep to ONE primary term per platform to stay within Vercel's 60s function limit.
 const NICHE_SEARCH_TERMS: Record<Platform, string[]> = {
-  "TikTok":           ["home renovation UK", "house extension UK", "planning permission UK"],
-  "Instagram Reels":  ["homerenovation", "houseextension", "planningpermission"],
-  "YouTube Shorts":   ["home renovation UK", "house extension tips", "planning permission UK"],
-  "Facebook Reels":   ["home renovation UK", "house extension UK", "planning permission UK"],
+  "TikTok":           ["home renovation UK"],
+  "Instagram Reels":  ["homerenovation"],
+  "YouTube Shorts":   ["home renovation UK"],
+  "Facebook Reels":   ["home renovation UK"],
 };
+
+// Apify actor hard timeout (seconds) — must be < Vercel maxDuration
+const ACTOR_TIMEOUT_SECS = 50;
 
 export async function scrapeContent(
   platform: Platform,
@@ -121,24 +125,29 @@ export async function scrapeContent(
   const actorId = ACTOR_IDS[platform];
   const searchTerms = NICHE_SEARCH_TERMS[platform] ?? ["home renovation UK"];
 
-  let allPosts: ScrapedPost[] = [];
+  onProgress?.(`Scraping ${platform} for "${searchTerms.join(", ")}"...`);
 
-  for (const term of searchTerms) {
-    onProgress?.(`Scraping "${term}"...`);
-    try {
+  // Run all search terms in parallel — far faster than sequential
+  const results = await Promise.allSettled(
+    searchTerms.map(async (term) => {
       const input = buildActorInput(platform, term);
-      const run = await client.actor(actorId).call(input);
-      const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 50 });
-
+      const run = await client.actor(actorId).call(input, { timeout: ACTOR_TIMEOUT_SECS });
+      const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 20 });
       const posts = (items as Record<string, unknown>[])
         .map((item) => normalisePost(item, platform))
         .filter((p) => (p.views ?? 0) > 0);
+      onProgress?.(`"${term}" → ${posts.length} posts`);
+      return posts;
+    })
+  );
 
-      allPosts = allPosts.concat(posts);
-      onProgress?.(`Found ${posts.length} posts for "${term}"`);
-    } catch (err) {
-      console.error(`Apify scrape failed for term "${term}":`, err);
-      onProgress?.(`Failed for "${term}" — continuing...`);
+  let allPosts: ScrapedPost[] = [];
+  for (const result of results) {
+    if (result.status === "fulfilled") {
+      allPosts = allPosts.concat(result.value);
+    } else {
+      console.error("Apify term failed:", result.reason);
+      onProgress?.(`One term failed — continuing with others...`);
     }
   }
 
@@ -159,15 +168,15 @@ export async function scrapeContent(
 function buildActorInput(platform: Platform, searchTerm: string): Record<string, unknown> {
   switch (platform) {
     case "TikTok":
-      return { searchQueries: [searchTerm], maxItems: 30, shouldDownloadVideos: false };
+      return { searchQueries: [searchTerm], maxItems: 20, shouldDownloadVideos: false };
     case "Instagram Reels":
-      return { hashtags: [searchTerm.replace(/\s+/g, "")], resultsLimit: 30 };
+      return { hashtags: [searchTerm.replace(/\s+/g, "")], resultsLimit: 20 };
     case "YouTube Shorts":
-      return { searchKeywords: [searchTerm], maxResults: 30, type: "shorts" };
+      return { searchKeywords: [searchTerm], maxResults: 20, type: "shorts" };
     case "Facebook Reels":
-      return { searchQuery: searchTerm, maxPosts: 30 };
+      return { searchQuery: searchTerm, maxPosts: 20 };
     default:
-      return { searchQuery: searchTerm, maxItems: 30 };
+      return { searchQuery: searchTerm, maxItems: 20 };
   }
 }
 

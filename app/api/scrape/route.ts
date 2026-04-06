@@ -5,6 +5,9 @@ import { writePatterns } from "@/lib/pattern-store";
 import type { Platform, PatternData, HookSource } from "@/lib/build-prompt";
 
 export const runtime = "nodejs";
+// Vercel: Hobby supports up to 60s, Pro up to 300s.
+// 60s gives the Apify actor (capped at 50s) time to complete on all plans.
+export const maxDuration = 60;
 
 // Extract the opening hook from a caption/transcript — first sentence, max 180 chars
 function extractHookLine(text: string): string {
