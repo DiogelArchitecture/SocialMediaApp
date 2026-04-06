@@ -89,26 +89,61 @@ function normalisePost(raw: Record<string, unknown>, platform: Platform): Scrape
   };
 }
 
-// Fixed niche terms — always scraped for renovation pattern intelligence regardless of topic.
-// The topic is used for script generation, NOT for what we search on TikTok.
-// Keep to ONE primary term per platform to stay within Vercel's 60s function limit.
-const NICHE_SEARCH_TERMS: Record<Platform, string[]> = {
-  "TikTok":           ["home renovation UK"],
-  "Instagram Reels":  ["homerenovation"],
-  "YouTube Shorts":   ["home renovation UK"],
-  "Facebook Reels":   ["home renovation UK"],
+// Fixed niche search term per platform — always the same regardless of script topic.
+const NICHE_SEARCH_TERM: Record<Platform, string> = {
+  "TikTok":           "home renovation UK",
+  "Instagram Reels":  "homerenovation",
+  "YouTube Shorts":   "home renovation UK",
+  "Facebook Reels":   "home renovation UK",
 };
 
-// Apify actor hard timeout (seconds) — must be < Vercel maxDuration
-const ACTOR_TIMEOUT_SECS = 50;
+// Apify actor hard timeout (seconds). Must be less than Vercel maxDuration.
+const ACTOR_TIMEOUT_SECS = 55;
+
+/**
+ * Calls Apify's run-sync-get-dataset-items endpoint — one HTTP request that
+ * starts the actor, waits for it to finish, and returns items inline.
+ * Avoids the apify-client polling loop which gets killed by Vercel timeouts.
+ */
+async function runActorSync(
+  actorId: string,
+  input: Record<string, unknown>,
+  token: string,
+  timeoutSecs: number
+): Promise<Record<string, unknown>[]> {
+  // Apify API uses ~ instead of / in actor IDs
+  const encodedId = actorId.replace("/", "~");
+  const url = `https://api.apify.com/v2/acts/${encodedId}/run-sync-get-dataset-items?timeout=${timeoutSecs}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+    // Node.js AbortSignal timeout — slightly longer than Apify-side timeout
+    signal: AbortSignal.timeout((timeoutSecs + 10) * 1000),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`Apify ${actorId} failed (${res.status}): ${text.slice(0, 200)}`);
+  }
+
+  const data = await res.json() as unknown;
+  if (!Array.isArray(data)) {
+    throw new Error(`Apify returned unexpected response shape for ${actorId}`);
+  }
+  return data;
+}
 
 export async function scrapeContent(
   platform: Platform,
-  keyword: string,         // kept for cache key / display — NOT used as search term
+  keyword: string,         // kept for cache key / display — NOT used as Apify search term
   forceFresh = false,
   onProgress?: (msg: string) => void
 ): Promise<ScrapedPost[]> {
-  // Cache is keyed to the platform + niche (not the specific topic)
   const cacheKey = getCacheKey(platform, "renovation-niche");
   const cachePath = getCachePath(cacheKey);
 
@@ -121,39 +156,22 @@ export async function scrapeContent(
   const token = process.env.APIFY_API_TOKEN;
   if (!token) throw new Error("APIFY_API_TOKEN not set");
 
-  const client = new ApifyClient({ token });
   const actorId = ACTOR_IDS[platform];
-  const searchTerms = NICHE_SEARCH_TERMS[platform] ?? ["home renovation UK"];
+  const searchTerm = NICHE_SEARCH_TERM[platform] ?? "home renovation UK";
 
-  onProgress?.(`Scraping ${platform} for "${searchTerms.join(", ")}"...`);
+  onProgress?.(`Searching ${platform}: "${searchTerm}"...`);
 
-  // Run all search terms in parallel — far faster than sequential
-  const results = await Promise.allSettled(
-    searchTerms.map(async (term) => {
-      const input = buildActorInput(platform, term);
-      const run = await client.actor(actorId).call(input, { timeout: ACTOR_TIMEOUT_SECS });
-      const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 20 });
-      const posts = (items as Record<string, unknown>[])
-        .map((item) => normalisePost(item, platform))
-        .filter((p) => (p.views ?? 0) > 0);
-      onProgress?.(`"${term}" → ${posts.length} posts`);
-      return posts;
-    })
-  );
+  const input = buildActorInput(platform, searchTerm);
+  const rawItems = await runActorSync(actorId, input, token, ACTOR_TIMEOUT_SECS);
 
-  let allPosts: ScrapedPost[] = [];
-  for (const result of results) {
-    if (result.status === "fulfilled") {
-      allPosts = allPosts.concat(result.value);
-    } else {
-      console.error("Apify term failed:", result.reason);
-      onProgress?.(`One term failed — continuing with others...`);
-    }
-  }
+  const posts = rawItems
+    .map((item) => normalisePost(item, platform))
+    .filter((p) => (p.views ?? 0) > 0);
 
-  // Deduplicate and sort by ER
+  onProgress?.(`${posts.length} posts returned`);
+
   const seen = new Set<string>();
-  const top20 = allPosts
+  const top20 = posts
     .filter((p) => { if (seen.has(p.id)) return false; seen.add(p.id); return true; })
     .sort((a, b) => (b.engagement_rate ?? 0) - (a.engagement_rate ?? 0))
     .slice(0, 20);
@@ -161,6 +179,7 @@ export async function scrapeContent(
   if (top20.length > 0) {
     writeCache(cachePath, top20);
   }
+
   onProgress?.(`Done — ${top20.length} posts collected.`);
   return top20;
 }
@@ -180,7 +199,8 @@ function buildActorInput(platform: Platform, searchTerm: string): Record<string,
   }
 }
 
-// Transcript fetch for Analyse mode
+// ── Transcript fetch for Analyse mode ────────────────────────────────────────
+
 export async function fetchTranscript(url: string): Promise<{
   transcript: string;
   views: number;
@@ -193,7 +213,6 @@ export async function fetchTranscript(url: string): Promise<{
 
   const client = new ApifyClient({ token });
 
-  // Detect platform from URL
   const platform = detectPlatformFromUrl(url);
   const actorId = ACTOR_IDS[platform];
 
