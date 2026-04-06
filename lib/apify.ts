@@ -12,7 +12,7 @@ const CACHE_TTL_DAYS = 7;
 const ACTOR_IDS: Record<Platform, string> = {
   TikTok: "clockworks/tiktok-scraper",
   "Instagram Reels": "apify/instagram-reel-scraper",
-  "YouTube Shorts": "streamers/youtube-scraper",
+  "YouTube Shorts": "apify/youtube-scraper",
   "Facebook Reels": "apify/facebook-posts-scraper",
 };
 
@@ -162,7 +162,14 @@ export async function scrapeContent(
   onProgress?.(`Searching ${platform}: "${searchTerm}"...`);
 
   const input = buildActorInput(platform, searchTerm);
-  const rawItems = await runActorSync(actorId, input, token, ACTOR_TIMEOUT_SECS);
+  let rawItems: Record<string, unknown>[] = [];
+  try {
+    rawItems = await runActorSync(actorId, input, token, ACTOR_TIMEOUT_SECS);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    onProgress?.(`Actor error: ${msg.slice(0, 120)}`);
+    throw err; // re-throw so the route can surface a meaningful error
+  }
 
   const posts = rawItems
     .map((item) => normalisePost(item, platform))
@@ -191,7 +198,14 @@ function buildActorInput(platform: Platform, searchTerm: string): Record<string,
     case "Instagram Reels":
       return { hashtags: [searchTerm.replace(/\s+/g, "")], resultsLimit: 20 };
     case "YouTube Shorts":
-      return { searchKeywords: [searchTerm], maxResults: 20, type: "shorts" };
+      // apify/youtube-scraper input schema
+      return {
+        searchKeywords: searchTerm,
+        maxResults: 20,
+        maxResultsShorts: 20,
+        shouldDownloadVideos: false,
+        shouldDownloadSubtitles: false,
+      };
     case "Facebook Reels":
       return { searchQuery: searchTerm, maxPosts: 20 };
     default:
