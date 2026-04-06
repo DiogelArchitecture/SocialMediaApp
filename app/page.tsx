@@ -717,6 +717,7 @@ export default function Home() {
                     scrapeStep={scrapeStep}
                     scrapeDetail={scrapeDetail}
                     onRegenerate={() => handleGenerateScript()}
+                    topic={topic}
                   />
                 </>
               )}

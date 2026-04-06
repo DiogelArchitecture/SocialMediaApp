@@ -1,6 +1,7 @@
 "use client";
 
-import { parseStreamingOutput, SECTION_ORDER, type SectionKey } from "@/lib/parse-output";
+import { useState } from "react";
+import { parseStreamingOutput, SECTION_ORDER, SECTION_LABELS, type SectionKey } from "@/lib/parse-output";
 import OutputCard from "./OutputCard";
 import ScrapeProgress, { type ScrapeStep } from "./ScrapeProgress";
 
@@ -10,6 +11,7 @@ interface OutputPanelProps {
   scrapeStep: ScrapeStep;
   scrapeDetail?: string;
   onRegenerate?: (section: SectionKey) => void;
+  topic?: string;
 }
 
 export default function OutputPanel({
@@ -18,11 +20,40 @@ export default function OutputPanel({
   scrapeStep,
   scrapeDetail,
   onRegenerate,
+  topic,
 }: OutputPanelProps) {
+  const [copiedAll, setCopiedAll] = useState(false);
   const parsed = parseStreamingOutput(rawOutput);
   const availableSections = SECTION_ORDER.filter((key) => parsed[key]);
 
   const isEmpty = !rawOutput && scrapeStep === "idle" && !isGenerating;
+  const isDone = !isGenerating && availableSections.length > 0;
+
+  function buildPlainText(): string {
+    return availableSections
+      .map((key) => `${SECTION_LABELS[key].toUpperCase()}\n${"─".repeat(40)}\n${parsed[key]}`)
+      .join("\n\n");
+  }
+
+  async function handleCopyAll() {
+    await navigator.clipboard.writeText(buildPlainText());
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 2000);
+  }
+
+  function handleExportTxt() {
+    const text = buildPlainText();
+    const slug = (topic || "script").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
+    const date = new Date().toISOString().split("T")[0];
+    const filename = `${slug}-${date}.txt`;
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <div className="space-y-4 min-h-[400px]">
@@ -55,6 +86,26 @@ export default function OutputPanel({
             <div className="w-1.5 h-1.5 rounded-full bg-[#E8FF47] animate-bounce" style={{ animationDelay: "300ms" }} />
           </div>
           <span className="text-xs font-mono text-[#6B6B72]">Generating script...</span>
+        </div>
+      )}
+
+      {/* Copy All + Export bar — shown once generation is complete */}
+      {isDone && (
+        <div className="flex items-center gap-2 justify-end">
+          <button
+            onClick={handleCopyAll}
+            className="flex items-center gap-1.5 text-xs text-[#6B6B72] hover:text-[#E8FF47] border border-[#1E1E24] hover:border-[#E8FF47]/50 px-3 py-1.5 transition-colors"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            {copiedAll ? "✓ Copied" : "Copy All"}
+          </button>
+          <button
+            onClick={handleExportTxt}
+            className="flex items-center gap-1.5 text-xs text-[#6B6B72] hover:text-[#E8FF47] border border-[#1E1E24] hover:border-[#E8FF47]/50 px-3 py-1.5 transition-colors"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            Export TXT ↓
+          </button>
         </div>
       )}
 
