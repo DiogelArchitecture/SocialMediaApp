@@ -12,6 +12,8 @@ interface OutputPanelProps {
   scrapeDetail?: string;
   onRegenerate?: (section: SectionKey) => void;
   topic?: string;
+  platform?: string;
+  selectedHook?: string | null;
 }
 
 export default function OutputPanel({
@@ -21,8 +23,11 @@ export default function OutputPanel({
   scrapeDetail,
   onRegenerate,
   topic,
+  platform,
+  selectedHook,
 }: OutputPanelProps) {
   const [copiedAll, setCopiedAll] = useState(false);
+  const [saved, setSaved] = useState(false);
   const parsed = parseStreamingOutput(rawOutput);
   const availableSections = SECTION_ORDER.filter((key) => parsed[key]);
 
@@ -39,6 +44,21 @@ export default function OutputPanel({
     await navigator.clipboard.writeText(buildPlainText());
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 2000);
+  }
+
+  function handleSave() {
+    const scripts = (() => { try { return JSON.parse(localStorage.getItem("replanit-scripts") ?? "[]"); } catch { return []; } })();
+    const entry = {
+      id: Date.now().toString(),
+      topic: topic ?? "Untitled",
+      platform: platform ?? "",
+      date: new Date().toISOString(),
+      hook: selectedHook ?? parsed.hook ?? "",
+      sections: Object.fromEntries(availableSections.map((k) => [k, parsed[k] ?? ""])),
+    };
+    scripts.unshift(entry);
+    localStorage.setItem("replanit-scripts", JSON.stringify(scripts.slice(0, 30)));
+    setSaved(true);
   }
 
   function handleExportTxt() {
@@ -92,6 +112,13 @@ export default function OutputPanel({
       {/* Copy All + Export bar — shown once generation is complete */}
       {isDone && (
         <div className="flex items-center gap-2 justify-end">
+          <button
+            onClick={handleSave}
+            className={`flex items-center gap-1.5 text-xs border px-3 py-1.5 transition-colors ${saved ? "border-[#E8FF47]/50 text-[#E8FF47]" : "border-[#1E1E24] text-[#6B6B72] hover:text-[#E8FF47] hover:border-[#E8FF47]/50"}`}
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            {saved ? "★ Saved" : "★ Save"}
+          </button>
           <button
             onClick={handleCopyAll}
             className="flex items-center gap-1.5 text-xs text-[#6B6B72] hover:text-[#E8FF47] border border-[#1E1E24] hover:border-[#E8FF47]/50 px-3 py-1.5 transition-colors"

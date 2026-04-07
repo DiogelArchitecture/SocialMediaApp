@@ -8,6 +8,9 @@ export interface ParsedOutput {
   viralCut?: string;
   editNotes?: string;
   vfx?: string;
+  equipment?: string;
+  filmingTips?: string;
+  caption?: string;
   raw: string;
 }
 
@@ -21,6 +24,9 @@ const DELIMITERS = [
   "===VIRAL CUT===",
   "===EDIT NOTES===",
   "===VFX===",
+  "===EQUIPMENT===",
+  "===FILMING TIPS===",
+  "===CAPTION===",
 ] as const;
 
 const KEY_MAP: Record<string, keyof Omit<ParsedOutput, "raw">> = {
@@ -33,6 +39,9 @@ const KEY_MAP: Record<string, keyof Omit<ParsedOutput, "raw">> = {
   "===VIRAL CUT===": "viralCut",
   "===EDIT NOTES===": "editNotes",
   "===VFX===": "vfx",
+  "===EQUIPMENT===": "equipment",
+  "===FILMING TIPS===": "filmingTips",
+  "===CAPTION===": "caption",
 };
 
 export function parseOutput(raw: string): ParsedOutput {
@@ -71,10 +80,13 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   packaging: "Packaging Ideas",
   script: "Script",
   shotList: "Shot List",
+  equipment: "Equipment",
+  filmingTips: "Filming Tips",
   props: "Props List",
   viralCut: "Viral Cut",
   editNotes: "Edit Notes",
   vfx: "VFX / AI Overlay Ideas",
+  caption: "Caption",
 };
 
 export const SECTION_ORDER: SectionKey[] = [
@@ -82,9 +94,12 @@ export const SECTION_ORDER: SectionKey[] = [
   "belief",
   "script",
   "shotList",
+  "equipment",
+  "filmingTips",
   "packaging",
   "props",
   "viralCut",
   "editNotes",
   "vfx",
+  "caption",
 ];

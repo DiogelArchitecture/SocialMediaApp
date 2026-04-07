@@ -18,6 +18,8 @@ import type { ScrapeStep } from "@/components/ScrapeProgress";
 import type { SpinoffIdea } from "@/lib/analyse";
 import type { ScriptConcept } from "@/app/api/concepts/route";
 import CTASelector, { DEFAULT_CTA_PHRASES } from "@/components/CTASelector";
+import SavedIdeasBar from "@/components/SavedIdeasBar";
+import type { SavedIdea } from "@/components/HookPicker";
 
 const RANDOM_TOPICS = [
   "Loft conversion planning mistakes",
@@ -40,6 +42,9 @@ const DEFAULT_TOGGLES: Toggles = {
   vfxIdeas: false,
   packagingIdeas: false,
   scrapeFresh: false,
+  equipment: true,
+  filmingTips: true,
+  caption: false,
 };
 
 const DEFAULT_TOGGLES_QUICK: Toggles = {
@@ -50,6 +55,9 @@ const DEFAULT_TOGGLES_QUICK: Toggles = {
   vfxIdeas: false,
   packagingIdeas: false,
   scrapeFresh: false,
+  equipment: true,
+  filmingTips: false,
+  caption: false,
 };
 
 export default function Home() {
@@ -65,6 +73,31 @@ export default function Home() {
   const [hookStyle, setHookStyle] = useState<HookStyle>("Auto");
   const [tone, setTone] = useState<Tone>("Calm authority");
   const [toggles, setToggles] = useState<Toggles>(DEFAULT_TOGGLES);
+
+  // Saved ideas — persisted to localStorage
+  const [savedIdeas, setSavedIdeas] = useState<SavedIdea[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { return JSON.parse(localStorage.getItem("replanit-ideas") ?? "[]"); } catch { return []; }
+  });
+
+  function handleToggleSave(hook: import("@/lib/build-prompt").HookSource) {
+    const id = hook.text.slice(0, 80);
+    setSavedIdeas((prev) => {
+      const next = prev.some((s) => s.id === id)
+        ? prev.filter((s) => s.id !== id)
+        : [...prev, { id, text: hook.text, pattern_type: hook.pattern_type, views: hook.views, avg_er: hook.avg_er, source_url: hook.source_url, savedAt: new Date().toISOString() }];
+      localStorage.setItem("replanit-ideas", JSON.stringify(next));
+      return next;
+    });
+  }
+
+  function handleRemoveIdea(id: string) {
+    setSavedIdeas((prev) => { const next = prev.filter((s) => s.id !== id); localStorage.setItem("replanit-ideas", JSON.stringify(next)); return next; });
+  }
+
+  function handleClearIdeas() {
+    setSavedIdeas([]); localStorage.removeItem("replanit-ideas");
+  }
 
   // Step 2 — scrape + hooks
   const [patterns, setPatterns] = useState<PatternData | null>(null);
@@ -206,7 +239,7 @@ export default function Home() {
       const res = await fetch("/api/concepts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, platform, duration, location, selectedHook, audience, tone, patterns }),
+        body: JSON.stringify({ topic, platform, duration, location, selectedHook, audience, tone, patterns, savedIdeas }),
       });
       if (!res.body) throw new Error("No response");
       const reader = res.body.getReader();
@@ -596,6 +629,15 @@ export default function Home() {
                       </div>
                     )}
 
+                    {/* Saved ideas bar */}
+                    {!scrapeLoading && (
+                      <SavedIdeasBar
+                        ideas={savedIdeas}
+                        onRemove={handleRemoveIdea}
+                        onClearAll={handleClearIdeas}
+                      />
+                    )}
+
                     {/* Hook picker */}
                     {!scrapeLoading && (
                       <HookPicker
@@ -605,6 +647,8 @@ export default function Home() {
                         onSelect={setSelectedHook}
                         onContinue={handleBuildConcepts}
                         isLoading={false}
+                        savedIdeas={savedIdeas}
+                        onToggleSave={handleToggleSave}
                       />
                     )}
                   </div>
@@ -718,6 +762,8 @@ export default function Home() {
                     scrapeDetail={scrapeDetail}
                     onRegenerate={() => handleGenerateScript()}
                     topic={topic}
+                    platform={platform}
+                    selectedHook={selectedHook}
                   />
                 </>
               )}

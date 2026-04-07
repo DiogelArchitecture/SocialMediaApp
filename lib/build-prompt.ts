@@ -12,6 +12,9 @@ export interface Toggles {
   vfxIdeas: boolean;
   packagingIdeas: boolean;
   scrapeFresh: boolean;
+  equipment: boolean;
+  filmingTips: boolean;
+  caption: boolean;
 }
 
 export interface HookSource {
@@ -159,6 +162,24 @@ export function buildUserPrompt(params: BuildPromptParams): string {
     prompt += `Include a ===VFX=== section with specific VFX moments and briefs for an editor.\n`;
   } else {
     prompt += `Do not include a ===VFX=== section.\n`;
+  }
+
+  if (toggles.equipment) {
+    prompt += `Include an ===EQUIPMENT=== section after the shot list with Camera, Audio, and Other (only if genuinely needed) recommendations specific to the shooting location.\n`;
+  } else {
+    prompt += `Do not include an ===EQUIPMENT=== section.\n`;
+  }
+
+  if (toggles.filmingTips) {
+    prompt += `Include a ===FILMING TIPS=== section with 3-5 practical, location-specific bullets referencing actual shots from the shot list.\n`;
+  } else {
+    prompt += `Do not include a ===FILMING TIPS=== section.\n`;
+  }
+
+  if (toggles.caption) {
+    prompt += `Include a ===CAPTION=== section at the end: platform-native social caption, hook line, 2-3 body lines, relevant UK renovation hashtags. Max 200 words.\n`;
+  } else {
+    prompt += `Do not include a ===CAPTION=== section.\n`;
   }
 
   prompt += `\nNow generate the script. Build on the patterns above — do not invent. Target duration: ${duration}.`;

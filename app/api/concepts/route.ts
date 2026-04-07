@@ -5,6 +5,13 @@ import type { Platform, Duration, Audience, Tone, PatternData } from "@/lib/buil
 
 export const runtime = "nodejs";
 
+interface SavedIdea {
+  id: string;
+  text: string;
+  pattern_type: string;
+  avg_er?: number;
+}
+
 export interface ConceptRequest {
   topic: string;
   platform: Platform;
@@ -14,6 +21,7 @@ export interface ConceptRequest {
   audience?: Audience;
   tone?: Tone;
   patterns?: PatternData | null;
+  savedIdeas?: SavedIdea[];
 }
 
 export interface ScriptConcept {
@@ -51,7 +59,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = (await request.json()) as ConceptRequest;
-    const { topic, platform, duration, location, selectedHook, audience, tone, patterns } = body;
+    const { topic, platform, duration, location, selectedHook, audience, tone, patterns, savedIdeas } = body;
 
     const apiKey = (process.env.ANTHROPIC_API_KEY || "").replace(/[\u2013\u2014\u2212]/g, "-").trim();
     if (!apiKey) return errStream("ANTHROPIC_API_KEY is not set.");
@@ -79,6 +87,11 @@ export async function POST(request: NextRequest) {
     if (patterns?.formats?.length) {
       const fmtLines = patterns.formats.slice(0, 3).map(f => `- ${f.description}`).join("\n");
       patternContext += `FORMATS performing well on ${platform}:\n${fmtLines}\n\n`;
+    }
+
+    if (savedIdeas && savedIdeas.length > 0) {
+      const ideaLines = savedIdeas.map(i => `- "${i.text}" (${i.pattern_type})`).join("\n");
+      patternContext += `SAVED IDEAS — the user starred these hooks across sessions. Mirror their format energy and tension level in at least one concept:\n${ideaLines}\n\n`;
     }
 
     const prompt = `${hookContext}${patternContext}Generate exactly 3 distinct script concepts for a ${duration} ${platform} video about: "${topic}"

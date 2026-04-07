@@ -44,6 +44,24 @@ Choose ONE CTA type based on the topic and tone:
 ## VIRAL CUT RULE
 The viral cut must reuse EXACT shots from the shot list only — no new scenes.
 Reference shots by number (e.g. "SHOT 3 — trimmed to 1.5s").
+
+## EQUIPMENT RULE
+If ===EQUIPMENT=== is requested, output three lines after the heading:
+Camera: [specific recommendation for the shooting location — smartphone is fine if appropriate]
+Audio: [mic recommendation given the environment — lavalier, shotgun, built-in]
+Other: [tripod, gimbal, second angle — ONLY if genuinely needed. Omit if not.]
+
+## FILMING TIPS RULE
+If ===FILMING TIPS=== is requested, output 3-5 tight bullet points of practical, location-specific advice.
+Each bullet must reference a specific SHOT number from the shot list.
+Focus on what could go wrong and how to prevent it — not generic tips.
+
+## CAPTION RULE
+If ===CAPTION=== is requested, write a platform-native social media caption:
+- First line: the hook (matches or complements ===HOOK===)
+- 2-3 body lines building intrigue or value
+- Blank line then 5-8 UK renovation hashtags
+Max 200 words. No emojis unless they serve the copy.
 `;
 
 function loadMasterPrompt(): string {
