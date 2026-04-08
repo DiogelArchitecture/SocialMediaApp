@@ -9,11 +9,13 @@ const CACHE_DIR = process.env.VERCEL
   : path.join(process.cwd(), "data", "cache");
 const CACHE_TTL_DAYS = 7;
 
-const ACTOR_IDS: Record<Platform, string> = {
-  TikTok: "clockworks/tiktok-scraper",
-  "Instagram Reels": "apify/instagram-reel-scraper",
-  "YouTube Shorts": "apify/youtube-scraper",
-  "Facebook Reels": "apify/facebook-posts-scraper",
+const ACTOR_IDS: Record<Platform, string[]> = {
+  TikTok: ["clockworks/tiktok-scraper"],
+  "Instagram Reels": ["apify/instagram-reel-scraper"],
+  // "apify/youtube-scraper" has been renamed/maintained under streamers namespace on Apify.
+  // Keep old id as a fallback for backwards compatibility across accounts/environments.
+  "YouTube Shorts": ["streamers/youtube-scraper", "apify/youtube-scraper"],
+  "Facebook Reels": ["apify/facebook-posts-scraper"],
 };
 
 export interface ScrapedPost {
@@ -138,6 +140,55 @@ async function runActorSync(
   return data;
 }
 
+function getApifyHttpStatus(error: unknown): number | null {
+  const msg = error instanceof Error ? error.message : String(error);
+  const match = msg.match(/failed \((\d{3})\)/);
+  if (!match) return null;
+  return Number(match[1]);
+}
+
+function isActorNotFoundError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  return msg.includes("record-not-found") || msg.includes("Actor with this name was not found") || msg.includes("(404)");
+}
+
+function shouldTryNextActor(error: unknown): boolean {
+  if (isActorNotFoundError(error)) return true;
+  const status = getApifyHttpStatus(error);
+  if (status == null) return false;
+  // Retry next actor on transient/infra-level failures.
+  return status >= 500 || status === 429;
+}
+
+async function runActorSyncWithFallback(
+  actorIds: string[],
+  input: Record<string, unknown>,
+  token: string,
+  timeoutSecs: number,
+  onProgress?: (msg: string) => void
+): Promise<{ actorId: string; items: Record<string, unknown>[] }> {
+  let lastError: unknown;
+
+  for (const actorId of actorIds) {
+    try {
+      const items = await runActorSync(actorId, input, token, timeoutSecs);
+      return { actorId, items };
+    } catch (err) {
+      lastError = err;
+      if (!shouldTryNextActor(err)) throw err;
+      const status = getApifyHttpStatus(err);
+      const reason = isActorNotFoundError(err)
+        ? "not found"
+        : status
+        ? `failed with ${status}`
+        : "failed";
+      onProgress?.(`Actor "${actorId}" ${reason}. Trying fallback...`);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("All candidate Apify actors failed");
+}
+
 export async function scrapeContent(
   platform: Platform,
   keyword: string,         // kept for cache key / display — NOT used as Apify search term
@@ -156,7 +207,7 @@ export async function scrapeContent(
   const token = process.env.APIFY_API_TOKEN;
   if (!token) throw new Error("APIFY_API_TOKEN not set");
 
-  const actorId = ACTOR_IDS[platform];
+  const actorIds = ACTOR_IDS[platform];
   const searchTerm = NICHE_SEARCH_TERM[platform] ?? "home renovation UK";
 
   onProgress?.(`Searching ${platform}: "${searchTerm}"...`);
@@ -164,7 +215,9 @@ export async function scrapeContent(
   const input = buildActorInput(platform, searchTerm);
   let rawItems: Record<string, unknown>[] = [];
   try {
-    rawItems = await runActorSync(actorId, input, token, ACTOR_TIMEOUT_SECS);
+    const result = await runActorSyncWithFallback(actorIds, input, token, ACTOR_TIMEOUT_SECS, onProgress);
+    rawItems = result.items;
+    onProgress?.(`Using actor: ${result.actorId}`);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     onProgress?.(`Actor error: ${msg.slice(0, 120)}`);
@@ -228,10 +281,23 @@ export async function fetchTranscript(url: string): Promise<{
   const client = new ApifyClient({ token });
 
   const platform = detectPlatformFromUrl(url);
-  const actorId = ACTOR_IDS[platform];
+  const actorIds = ACTOR_IDS[platform];
 
   const input = buildTranscriptInput(platform, url);
-  const run = await client.actor(actorId).call(input);
+  let run: Awaited<ReturnType<ReturnType<typeof client.actor>["call"]>> | null = null;
+  let lastError: unknown;
+  for (const actorId of actorIds) {
+    try {
+      run = await client.actor(actorId).call(input);
+      break;
+    } catch (err) {
+      lastError = err;
+      if (!shouldTryNextActor(err)) throw err;
+    }
+  }
+  if (!run) {
+    throw lastError instanceof Error ? lastError : new Error("No valid Apify actor found for transcript fetch");
+  }
   const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 1 });
 
   if (!items.length) throw new Error("No data returned from Apify");

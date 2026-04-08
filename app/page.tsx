@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import ModeTab, { type AppMode } from "@/components/ModeTab";
 import StepIndicator, { type Step } from "@/components/StepIndicator";
@@ -108,6 +108,7 @@ export default function Home() {
   const [scrapeLoading, setScrapeLoading] = useState(false);
   const [scrapeStatusMsg, setScrapeStatusMsg] = useState<string>("");
   const [scrapeError, setScrapeError] = useState<string | null>(null);
+  const [scrapeFallbackNotice, setScrapeFallbackNotice] = useState<string | null>(null);
   const [selectedHook, setSelectedHook] = useState<string | null>(null);
 
   // Step 3 — concepts + CTA
@@ -130,6 +131,31 @@ export default function Home() {
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [analyseRaw, setAnalyseRaw] = useState("");
   const [parsedAnalysis, setParsedAnalysis] = useState<ParsedAnalysis | null>(null);
+  const [analyseError, setAnalyseError] = useState<string | null>(null);
+  const [analyseWarning, setAnalyseWarning] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const topicParam = params.get("topic");
+    const modeParam = params.get("mode");
+    const hookStyleParam = params.get("hookStyle");
+
+    if (topicParam) setTopic(topicParam);
+    if (modeParam === "quick" || modeParam === "forge" || modeParam === "analyse") {
+      setMode(modeParam);
+      setToggles(modeParam === "quick" ? DEFAULT_TOGGLES_QUICK : DEFAULT_TOGGLES);
+      if (modeParam === "analyse") setStep(1);
+    }
+    if (hookStyleParam) {
+      const normalised = hookStyleParam.trim().toLowerCase();
+      if (normalised.includes("inverse")) setHookStyle("Inverse");
+      else if (normalised.includes("stat")) setHookStyle("Stat-led");
+      else if (normalised.includes("question")) setHookStyle("Question");
+      else if (normalised.includes("disruption")) setHookStyle("Disruption");
+      else if (normalised.includes("auto")) setHookStyle("Auto");
+    }
+  }, []);
 
   function handleModeChange(newMode: AppMode) {
     setMode(newMode);
@@ -161,6 +187,7 @@ export default function Home() {
     setScrapeLoading(true);
     setScrapeStatusMsg("");
     setScrapeError(null);
+    setScrapeFallbackNotice(null);
     setRawPosts([]);
     setPatterns(null);
     setStep(2);
@@ -208,6 +235,7 @@ export default function Home() {
         return;
       }
       setScrapeError(prev => prev || "Scrape returned no posts — using cached patterns.");
+      setScrapeFallbackNotice("Live scrape unavailable. Showing cached pattern data.");
     }
 
     // Quick mode or scrape fallback: use cached/seed patterns
@@ -219,6 +247,7 @@ export default function Home() {
         p.niche.toLowerCase().includes(activeTopic.toLowerCase().split(" ")[0])
       );
       setPatterns(match?.data ?? (data.patterns?.[0]?.data ?? null));
+      setScrapeFallbackNotice(mode === "forge" ? "Using cached patterns as fallback." : null);
       // Keep specific error if we already have one (e.g. "APIFY_API_TOKEN not set")
       // Only set generic fallback message if there's no specific error yet
       if (mode === "forge") setScrapeError(prev => prev || "Scrape unavailable — using cached patterns.");
@@ -337,6 +366,8 @@ export default function Home() {
     setIsAnalysing(true);
     setAnalyseRaw("");
     setParsedAnalysis(null);
+    setAnalyseError(null);
+    setAnalyseWarning(null);
     try {
       const res = await fetch("/api/analyse", {
         method: "POST",
@@ -356,11 +387,15 @@ export default function Home() {
           try {
             const msg = JSON.parse(json);
             if (msg.text) { accumulated += msg.text; setAnalyseRaw(accumulated); }
+            if (msg.warning) setAnalyseWarning(msg.warning);
+            if (msg.error) setAnalyseError(msg.error);
           } catch { /* ignore */ }
         }
       }
       setParsedAnalysis(parseAnalysis(accumulated));
     } catch (err) {
+      const message = err instanceof Error ? err.message : "Analyse request failed";
+      setAnalyseError(message);
       console.error("Analyse error:", err);
     } finally {
       setIsAnalysing(false);
@@ -439,6 +474,24 @@ export default function Home() {
                 <div className="flex items-center gap-3 py-4 px-4 bg-[#111114] border border-[#1E1E24]">
                   <div className="flex gap-1">{[0,150,300].map(d => <div key={d} className="w-1.5 h-1.5 rounded-full bg-[#FF4F1F] animate-bounce" style={{ animationDelay: `${d}ms` }} />)}</div>
                   <span className="text-xs font-mono text-[#6B6B72]">Fetching transcript and analysing...</span>
+                </div>
+              )}
+              {analyseWarning && (
+                <div className="border border-[#FFB547]/40 bg-[#FFB547]/5 p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#FFB547]" />
+                    <span className="text-xs text-[#FFB547] uppercase tracking-widest" style={{ fontFamily: "Anton, sans-serif" }}>Warning</span>
+                  </div>
+                  <p className="text-xs font-mono text-[#F2F2F0]">{analyseWarning}</p>
+                </div>
+              )}
+              {analyseError && (
+                <div className="border border-[#FF4F1F]/40 bg-[#FF4F1F]/5 p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#FF4F1F]" />
+                    <span className="text-xs text-[#FF4F1F] uppercase tracking-widest" style={{ fontFamily: "Anton, sans-serif" }}>Error</span>
+                  </div>
+                  <p className="text-xs font-mono text-[#F2F2F0]">{analyseError}</p>
                 </div>
               )}
               {parsedAnalysis?.hookRate && (
@@ -626,6 +679,11 @@ export default function Home() {
                     {!scrapeLoading && scrapeError && (
                       <div className="text-xs text-[#6B6B72] font-mono bg-[#111114] border border-[#1E1E24] px-3 py-2">
                         ⚠ {scrapeError}
+                      </div>
+                    )}
+                    {!scrapeLoading && scrapeFallbackNotice && (
+                      <div className="text-xs text-[#FFB547] font-mono bg-[#FFB547]/5 border border-[#FFB547]/30 px-3 py-2">
+                        ⚠ {scrapeFallbackNotice}
                       </div>
                     )}
 
