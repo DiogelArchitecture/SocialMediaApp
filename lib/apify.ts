@@ -10,10 +10,10 @@ const CACHE_DIR = process.env.VERCEL
 const CACHE_TTL_DAYS = 7;
 
 const ACTOR_IDS: Record<Platform, string> = {
-  TikTok: "clockworks/tiktok-scraper",
-  "Instagram Reels": "apify/instagram-reel-scraper",
-  "YouTube Shorts": "apify/youtube-scraper",
-  "Facebook Reels": "apify/facebook-posts-scraper",
+  TikTok:             "clockworks/tiktok-scraper",
+  "Instagram Reels":  "apify/instagram-reel-scraper",
+  "YouTube Shorts":   "streamers/youtube-scraper",   // apify/youtube-scraper was retired
+  "Facebook Reels":   "apify/facebook-posts-scraper",
 };
 
 export interface ScrapedPost {
@@ -212,13 +212,11 @@ function buildActorInput(platform: Platform, searchTerm: string): Record<string,
     case "Instagram Reels":
       return { hashtags: [searchTerm.replace(/\s+/g, "")], resultsLimit: 20 };
     case "YouTube Shorts":
-      // apify/youtube-scraper input schema
+      // streamers/youtube-scraper — searchKeywords drives search; set maxResults:0 to get Shorts only
       return {
         searchKeywords: searchTerm,
-        maxResults: 20,
+        maxResults: 0,
         maxResultsShorts: 20,
-        shouldDownloadVideos: false,
-        shouldDownloadSubtitles: false,
       };
     case "Facebook Reels":
       return { searchQuery: searchTerm, maxPosts: 20 };
