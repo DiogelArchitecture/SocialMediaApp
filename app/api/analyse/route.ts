@@ -17,11 +17,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch transcript + engagement data via Apify
+    let transcriptFallbackWarning: string | null = null;
     let transcriptData: Awaited<ReturnType<typeof fetchTranscript>>;
     try {
       transcriptData = await fetchTranscript(url);
     } catch (err) {
       console.error("Apify transcript fetch failed:", err);
+      transcriptFallbackWarning = "Transcript fetch failed. Analysis is based on limited context and may be less accurate.";
       // Fall back to stub for development
       transcriptData = {
         transcript: "Transcript unavailable — Apify fetch failed. Analyse based on URL context only.",
@@ -48,6 +50,11 @@ export async function POST(request: NextRequest) {
     const readableStream = new ReadableStream({
       async start(controller) {
         try {
+          if (transcriptFallbackWarning) {
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ warning: transcriptFallbackWarning })}\n\n`)
+            );
+          }
           for await (const chunk of stream) {
             if (
               chunk.type === "content_block_delta" &&
@@ -60,7 +67,10 @@ export async function POST(request: NextRequest) {
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (err) {
-          controller.error(err);
+          const message = err instanceof Error ? err.message : "Analysis stream failed";
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
         }
       },
     });
