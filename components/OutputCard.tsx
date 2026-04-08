@@ -9,9 +9,20 @@ interface OutputCardProps {
   content: string;
   onRegenerate?: (section: SectionKey) => void;
   isStreaming?: boolean;
+  videoDuration?: string;
 }
 
-export default function OutputCard({ section, content, onRegenerate, isStreaming }: OutputCardProps) {
+function getShotTiming(content: string, videoDuration?: string): string | null {
+  if (!videoDuration) return null;
+  const secs = parseInt(videoDuration, 10);
+  if (!secs || isNaN(secs)) return null;
+  const shotCount = (content.match(/^SHOT \d+/gm) ?? []).length;
+  if (shotCount === 0) return null;
+  const perShot = (secs / shotCount).toFixed(1);
+  return `${shotCount} shots · ~${perShot}s each`;
+}
+
+export default function OutputCard({ section, content, onRegenerate, isStreaming, videoDuration }: OutputCardProps) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -62,6 +73,8 @@ export default function OutputCard({ section, content, onRegenerate, isStreaming
     );
   }
 
+  const shotTiming = section === "shotList" ? getShotTiming(content, videoDuration) : null;
+
   // Standard card for all other sections
   return (
     <div className="card-enter bg-[#111114] border border-[#1E1E24] overflow-hidden">
@@ -75,6 +88,11 @@ export default function OutputCard({ section, content, onRegenerate, isStreaming
           >
             {SECTION_LABELS[section]}
           </span>
+          {shotTiming && (
+            <span className="text-xs text-[#6B6B72] border border-[#1E1E24] px-1.5 py-0.5" style={{ fontFamily: "Inter, sans-serif" }}>
+              {shotTiming}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {onRegenerate && (

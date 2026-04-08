@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { parseStreamingOutput, SECTION_ORDER, SECTION_LABELS, type SectionKey } from "@/lib/parse-output";
 import OutputCard from "./OutputCard";
 import ScrapeProgress, { type ScrapeStep } from "./ScrapeProgress";
@@ -14,6 +14,7 @@ interface OutputPanelProps {
   topic?: string;
   platform?: string;
   selectedHook?: string | null;
+  videoDuration?: string;
 }
 
 export default function OutputPanel({
@@ -25,10 +26,19 @@ export default function OutputPanel({
   topic,
   platform,
   selectedHook,
+  videoDuration,
 }: OutputPanelProps) {
   const [copiedAll, setCopiedAll] = useState(false);
   const [saved, setSaved] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
   const parsed = parseStreamingOutput(rawOutput);
+
+  // Scroll into view when generation kicks off
+  useEffect(() => {
+    if (isGenerating) {
+      panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isGenerating]);
   const availableSections = SECTION_ORDER.filter((key) => parsed[key]);
 
   const isEmpty = !rawOutput && scrapeStep === "idle" && !isGenerating;
@@ -61,6 +71,17 @@ export default function OutputPanel({
     setSaved(true);
   }
 
+  function buildMarkdown(): string {
+    return availableSections
+      .map((key) => `## ${SECTION_LABELS[key]}\n\n${parsed[key]}`)
+      .join("\n\n---\n\n");
+  }
+
+  async function handleCopyMarkdown() {
+    await navigator.clipboard.writeText(buildMarkdown());
+    // Re-use copiedAll state briefly to show feedback on this button
+  }
+
   function handleExportTxt() {
     const text = buildPlainText();
     const slug = (topic || "script").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
@@ -76,7 +97,7 @@ export default function OutputPanel({
   }
 
   return (
-    <div className="space-y-4 min-h-[400px]">
+    <div ref={panelRef} className="space-y-4 min-h-[400px]">
       {/* Scrape progress */}
       {scrapeStep !== "idle" && (
         <ScrapeProgress step={scrapeStep} detail={scrapeDetail} />
@@ -127,6 +148,13 @@ export default function OutputPanel({
             {copiedAll ? "✓ Copied" : "Copy All"}
           </button>
           <button
+            onClick={handleCopyMarkdown}
+            className="flex items-center gap-1.5 text-xs text-[#6B6B72] hover:text-[#E8FF47] border border-[#1E1E24] hover:border-[#E8FF47]/50 px-3 py-1.5 transition-colors"
+            style={{ fontFamily: "Inter, sans-serif" }}
+          >
+            Copy MD
+          </button>
+          <button
             onClick={handleExportTxt}
             className="flex items-center gap-1.5 text-xs text-[#6B6B72] hover:text-[#E8FF47] border border-[#1E1E24] hover:border-[#E8FF47]/50 px-3 py-1.5 transition-colors"
             style={{ fontFamily: "Inter, sans-serif" }}
@@ -144,6 +172,7 @@ export default function OutputPanel({
           content={parsed[key] ?? ""}
           onRegenerate={onRegenerate}
           isStreaming={isGenerating && key === availableSections[availableSections.length - 1]}
+          videoDuration={videoDuration}
         />
       ))}
 

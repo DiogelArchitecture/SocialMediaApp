@@ -7,6 +7,7 @@ interface ConceptPickerProps {
   selected: string | null;
   onSelect: (id: string) => void;
   onContinue?: () => void;
+  onRegenerate?: () => void;
   isLoading: boolean;
   error?: string | null;
 }
@@ -17,7 +18,7 @@ const CTA_LABELS = {
   curiosity: { label: "Comment bait", colour: "text-[#E8FF47] border-[#E8FF47]/40" },
 };
 
-export default function ConceptPicker({ concepts, selected, onSelect, onContinue, isLoading, error }: ConceptPickerProps) {
+export default function ConceptPicker({ concepts, selected, onSelect, onContinue, onRegenerate, isLoading, error }: ConceptPickerProps) {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -116,15 +117,26 @@ export default function ConceptPicker({ concepts, selected, onSelect, onContinue
         })}
       </div>
 
-      {selected && (
-        <button
-          onClick={onContinue}
-          className="w-full py-3 text-sm bg-[#E8FF47] text-[#0A0A0B] hover:bg-[#d4eb2a] transition-colors card-enter"
-          style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.1em" }}
-        >
-          GENERATE FULL SCRIPT →
-        </button>
-      )}
+      <div className={`flex gap-2 ${selected ? "" : "justify-end"}`}>
+        {onRegenerate && (
+          <button
+            onClick={onRegenerate}
+            className="flex-shrink-0 py-3 px-4 text-sm border border-[#1E1E24] text-[#6B6B72] hover:text-[#F2F2F0] hover:border-[#6B6B72] transition-colors"
+            style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.08em" }}
+          >
+            ↺ 3 MORE
+          </button>
+        )}
+        {selected && (
+          <button
+            onClick={onContinue}
+            className="flex-1 py-3 text-sm bg-[#E8FF47] text-[#0A0A0B] hover:bg-[#d4eb2a] transition-colors card-enter"
+            style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.1em" }}
+          >
+            GENERATE FULL SCRIPT →
+          </button>
+        )}
+      </div>
     </div>
   );
 }

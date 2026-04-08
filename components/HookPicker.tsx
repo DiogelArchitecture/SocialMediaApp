@@ -152,11 +152,18 @@ function HookCard({
   );
 }
 
+function getStalenessBadge(scrapedAt?: string): { label: string; colour: string; ageText: string } | null {
+  if (!scrapedAt) return null;
+  const ageMs = Date.now() - new Date(scrapedAt).getTime();
+  const ageDays = ageMs / (1000 * 60 * 60 * 24);
+  if (ageDays < 1) return { label: "FRESH", colour: "text-[#4ade80] border-[#4ade80]/40", ageText: "today" };
+  if (ageDays < 3) return { label: "STALE", colour: "text-[#facc15] border-[#facc15]/40", ageText: `${Math.floor(ageDays)}d ago` };
+  return { label: "OUTDATED", colour: "text-[#FF4F1F] border-[#FF4F1F]/40", ageText: `${Math.floor(ageDays)}d ago` };
+}
+
 export default function HookPicker({ patterns, topic, selected, onSelect, onContinue, isLoading, savedIdeas, onToggleSave }: HookPickerProps) {
   const hooks = patterns?.hooks ?? [];
-  const scrapedAt = patterns?.scrapedAt
-    ? new Date(patterns.scrapedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-    : null;
+  const staleness = getStalenessBadge(patterns?.scrapedAt);
 
   return (
     <div className="space-y-4">
@@ -164,14 +171,25 @@ export default function HookPicker({ patterns, topic, selected, onSelect, onCont
         <p className="text-xs text-[#6B6B72] font-mono mb-1">
           Hooks for <span className="text-[#F2F2F0]">{topic}</span>
         </p>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <p className="text-xs text-[#6B6B72]" style={{ fontFamily: "Inter, sans-serif" }}>
             Pick the hook that fits — or skip and let Claude choose. ☆ to save ideas.
           </p>
-          {scrapedAt && (
-            <span className="text-xs text-[#6B6B72]/50 font-mono flex-shrink-0 ml-2">scraped {scrapedAt}</span>
+          {staleness && (
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className={`text-[10px] border px-1.5 py-0.5 font-mono ${staleness.colour}`}>
+                {staleness.label}
+              </span>
+              <span className="text-[10px] text-[#6B6B72]/50 font-mono">{staleness.ageText}</span>
+            </div>
           )}
         </div>
+        {staleness && (staleness.label === "STALE" || staleness.label === "OUTDATED") && (
+          <p className="text-xs text-[#6B6B72] mt-1" style={{ fontFamily: "Inter, sans-serif" }}>
+            Patterns are {staleness.ageText} old.{" "}
+            <span className="text-[#E8FF47]">Re-scrape</span> in Step 1 for today&apos;s trends.
+          </p>
+        )}
       </div>
 
       {isLoading ? (

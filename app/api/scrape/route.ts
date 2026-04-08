@@ -22,10 +22,11 @@ const CTA_SYSTEM = `You are a content pattern analyst. Extract CTAs and structur
 
 export async function POST(request: NextRequest) {
   try {
-    const { platform, keyword, forceFresh } = (await request.json()) as {
+    const { platform, keyword, forceFresh, topic } = (await request.json()) as {
       platform: Platform;
       keyword: string;
       forceFresh?: boolean;
+      topic?: string;
     };
 
     if (!platform || !keyword) {
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
           send("scraping", `Scraping ${platform}...`);
           const posts = await scrapeContent(platform, keyword, forceFresh, (msg) => {
             send("scraping", msg);
-          });
+          }, topic);
 
           send("filtering", `${posts.length} posts collected`);
 

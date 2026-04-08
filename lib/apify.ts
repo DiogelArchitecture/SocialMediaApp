@@ -24,7 +24,8 @@ export interface ScrapedPost {
   likes?: number;
   comments?: number;
   shares?: number;
-  engagement_rate?: number;
+  engagement_rate?: number;  // weighted: (likes + comments*3 + shares*5) / views
+  raw_er?: number;            // unweighted: (likes + comments + shares) / views
   url?: string;
   platform: Platform;
 }
@@ -60,13 +61,12 @@ function writeCache(filePath: string, data: ScrapedPost[]): void {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
 }
 
-function computeEngagementRate(post: Record<string, unknown>): number {
-  const views = Number(post.views || post.playCount || post.viewCount || 0);
-  const likes = Number(post.likes || post.likesCount || post.diggCount || 0);
-  const comments = Number(post.comments || post.commentsCount || 0);
-  const shares = Number(post.shares || post.sharesCount || 0);
-  if (views === 0) return 0;
-  return (likes + comments + shares) / views;
+function computeEngagementRate(views: number, likes: number, comments: number, shares: number): { er: number; raw_er: number } {
+  if (views === 0) return { er: 0, raw_er: 0 };
+  // Weighted: comments × 3 and shares × 5 to better surface genuinely viral content
+  const er = (likes + comments * 3 + shares * 5) / views;
+  const raw_er = (likes + comments + shares) / views;
+  return { er, raw_er };
 }
 
 function normalisePost(raw: Record<string, unknown>, platform: Platform): ScrapedPost {
@@ -74,6 +74,7 @@ function normalisePost(raw: Record<string, unknown>, platform: Platform): Scrape
   const likes = Number(raw.likes || raw.likesCount || raw.diggCount || 0);
   const comments = Number(raw.comments || raw.commentsCount || 0);
   const shares = Number(raw.shares || raw.sharesCount || 0);
+  const { er, raw_er } = computeEngagementRate(views, likes, comments, shares);
 
   return {
     id: String(raw.id || raw.videoId || raw.shortCode || Math.random()),
@@ -83,19 +84,29 @@ function normalisePost(raw: Record<string, unknown>, platform: Platform): Scrape
     likes,
     comments,
     shares,
-    engagement_rate: computeEngagementRate(raw),
+    engagement_rate: er,
+    raw_er,
     url: String(raw.url || raw.webVideoUrl || raw.shortUrl || ""),
     platform,
   };
 }
 
-// Fixed niche search term per platform — always the same regardless of script topic.
+// Fallback niche search term used when no user topic is provided.
 const NICHE_SEARCH_TERM: Record<Platform, string> = {
   "TikTok":           "home renovation UK",
   "Instagram Reels":  "homerenovation",
   "YouTube Shorts":   "home renovation UK",
   "Facebook Reels":   "home renovation UK",
 };
+
+/** Build an Apify-ready search term from the user's topic keyword. */
+function buildSearchTerm(platform: Platform, keyword?: string): string {
+  if (!keyword || !keyword.trim()) return NICHE_SEARCH_TERM[platform];
+  const base = keyword.trim().toLowerCase();
+  // Instagram doesn't support spaces in hashtags
+  if (platform === "Instagram Reels") return base.replace(/\s+/g, "") + "UKrenovation";
+  return `${base} UK home renovation`;
+}
 
 // Apify actor hard timeout (seconds). Must be less than Vercel maxDuration.
 const ACTOR_TIMEOUT_SECS = 55;
@@ -140,15 +151,18 @@ async function runActorSync(
 
 export async function scrapeContent(
   platform: Platform,
-  keyword: string,         // kept for cache key / display — NOT used as Apify search term
+  keyword: string,
   forceFresh = false,
-  onProgress?: (msg: string) => void
+  onProgress?: (msg: string) => void,
+  /** Optional user topic — when provided, drives a more targeted Apify search */
+  searchKeyword?: string
 ): Promise<ScrapedPost[]> {
-  const cacheKey = getCacheKey(platform, "renovation-niche");
+  const cacheSlug = searchKeyword?.trim() ? searchKeyword.trim() : "renovation-niche";
+  const cacheKey = getCacheKey(platform, cacheSlug);
   const cachePath = getCachePath(cacheKey);
 
   if (!forceFresh && isCacheValid(cachePath)) {
-    onProgress?.("Using cached niche data...");
+    onProgress?.("Using cached data...");
     const cached = readCache(cachePath);
     if (cached) return cached;
   }
@@ -157,7 +171,7 @@ export async function scrapeContent(
   if (!token) throw new Error("APIFY_API_TOKEN not set");
 
   const actorId = ACTOR_IDS[platform];
-  const searchTerm = NICHE_SEARCH_TERM[platform] ?? "home renovation UK";
+  const searchTerm = buildSearchTerm(platform, searchKeyword);
 
   onProgress?.(`Searching ${platform}: "${searchTerm}"...`);
 

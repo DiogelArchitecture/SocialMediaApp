@@ -12,7 +12,7 @@ import ToggleGroup from "@/components/ToggleGroup";
 import OutputPanel from "@/components/OutputPanel";
 import RetentionTimeline from "@/components/RetentionTimeline";
 import SpinoffCard from "@/components/SpinoffCard";
-import type { Platform, Duration, Audience, HookStyle, Tone, Toggles, PatternData } from "@/lib/build-prompt";
+import type { Platform, Duration, Audience, HookStyle, Tone, Toggles, PatternData, HookSource } from "@/lib/build-prompt";
 import { parseAnalysis, type ParsedAnalysis } from "@/lib/analyse";
 import type { ScrapeStep } from "@/components/ScrapeProgress";
 import type { SpinoffIdea } from "@/lib/analyse";
@@ -80,7 +80,7 @@ export default function Home() {
     try { return JSON.parse(localStorage.getItem("replanit-ideas") ?? "[]"); } catch { return []; }
   });
 
-  function handleToggleSave(hook: import("@/lib/build-prompt").HookSource) {
+  function handleToggleSave(hook: HookSource) {
     const id = hook.text.slice(0, 80);
     setSavedIdeas((prev) => {
       const next = prev.some((s) => s.id === id)
@@ -172,7 +172,7 @@ export default function Home() {
         const res = await fetch("/api/scrape", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ platform, keyword: activeTopic, forceFresh: true }),
+          body: JSON.stringify({ platform, keyword: activeTopic, forceFresh: true, topic: activeTopic }),
         });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
@@ -673,6 +673,7 @@ export default function Home() {
                           }
                         }
                       }}
+                      onRegenerate={handleBuildConcepts}
                       isLoading={conceptsLoading}
                       error={conceptsError}
                     />
@@ -764,6 +765,7 @@ export default function Home() {
                     topic={topic}
                     platform={platform}
                     selectedHook={selectedHook}
+                    videoDuration={duration}
                   />
                 </>
               )}

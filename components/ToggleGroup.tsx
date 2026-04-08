@@ -23,7 +23,10 @@ const TOGGLE_DEFS: ToggleDef[] = [
   { key: "editNotes", label: "Edit notes", description: "Cuts, captions, overlays, loop mechanic", forgeOnly: true },
   { key: "vfxIdeas", label: "VFX / AI overlay ideas", description: "Specific VFX moments for editor", forgeOnly: true },
   { key: "packagingIdeas", label: "Packaging ideas", description: "3 title/thumbnail concepts", forgeOnly: true },
-  { key: "scrapeFresh", label: "Scrape fresh data", description: "Trigger Apify — bypasses cache", forgeOnly: true },
+  { key: "scrapeFresh",   label: "Scrape fresh data",  description: "Trigger Apify — bypasses cache",               forgeOnly: true },
+  { key: "equipment",    label: "Equipment list",     description: "Camera, audio & gear for the shoot location",  forgeOnly: true },
+  { key: "filmingTips",  label: "Filming tips",       description: "3–5 practical tips referencing shot numbers",  forgeOnly: true },
+  { key: "caption",      label: "Social caption",     description: "Platform-native caption with hashtags",        forgeOnly: true },
 ];
 
 export default function ToggleGroup({ toggles, onChange, mode }: ToggleGroupProps) {
