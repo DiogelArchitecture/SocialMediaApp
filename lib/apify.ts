@@ -140,9 +140,24 @@ async function runActorSync(
   return data;
 }
 
+function getApifyHttpStatus(error: unknown): number | null {
+  const msg = error instanceof Error ? error.message : String(error);
+  const match = msg.match(/failed \((\d{3})\)/);
+  if (!match) return null;
+  return Number(match[1]);
+}
+
 function isActorNotFoundError(error: unknown): boolean {
   const msg = error instanceof Error ? error.message : String(error);
   return msg.includes("record-not-found") || msg.includes("Actor with this name was not found") || msg.includes("(404)");
+}
+
+function shouldTryNextActor(error: unknown): boolean {
+  if (isActorNotFoundError(error)) return true;
+  const status = getApifyHttpStatus(error);
+  if (status == null) return false;
+  // Retry next actor on transient/infra-level failures.
+  return status >= 500 || status === 429;
 }
 
 async function runActorSyncWithFallback(
@@ -160,8 +175,14 @@ async function runActorSyncWithFallback(
       return { actorId, items };
     } catch (err) {
       lastError = err;
-      if (!isActorNotFoundError(err)) throw err;
-      onProgress?.(`Actor "${actorId}" not found. Trying fallback...`);
+      if (!shouldTryNextActor(err)) throw err;
+      const status = getApifyHttpStatus(err);
+      const reason = isActorNotFoundError(err)
+        ? "not found"
+        : status
+        ? `failed with ${status}`
+        : "failed";
+      onProgress?.(`Actor "${actorId}" ${reason}. Trying fallback...`);
     }
   }
 
@@ -271,7 +292,7 @@ export async function fetchTranscript(url: string): Promise<{
       break;
     } catch (err) {
       lastError = err;
-      if (!isActorNotFoundError(err)) throw err;
+      if (!shouldTryNextActor(err)) throw err;
     }
   }
   if (!run) {
