@@ -12,8 +12,8 @@ const CACHE_TTL_DAYS = 7;
 const ACTOR_IDS: Record<Platform, string> = {
   TikTok:             "clockworks/tiktok-scraper",
   "Instagram Reels":  "apify/instagram-reel-scraper",
-  "YouTube Shorts":   "streamers/youtube-scraper",   // apify/youtube-scraper was retired
-  "Facebook Reels":   "apify/facebook-posts-scraper",
+  "YouTube Shorts":   "streamers/youtube-scraper",          // apify/youtube-scraper was retired
+  "Facebook Reels":   "apify/facebook-video-search-scraper", // accepts plain keyword strings in startUrls
 };
 
 export interface ScrapedPost {
@@ -219,7 +219,8 @@ function buildActorInput(platform: Platform, searchTerm: string): Record<string,
         maxResultsShorts: 20,
       };
     case "Facebook Reels":
-      return { searchQuery: searchTerm, maxPosts: 20 };
+      // apify/facebook-video-search-scraper accepts plain keyword strings in startUrls
+      return { startUrls: [searchTerm], maxVideos: 20 };
     default:
       return { searchQuery: searchTerm, maxItems: 20 };
   }
@@ -275,7 +276,7 @@ function buildTranscriptInput(platform: Platform, url: string): Record<string, u
     case "YouTube Shorts":
       return { startUrls: [{ url }], includeTranscripts: true };
     case "Facebook Reels":
-      return { startUrls: [{ url }] };
+      return { startUrls: [url] };
     default:
       return { startUrls: [{ url }] };
   }
