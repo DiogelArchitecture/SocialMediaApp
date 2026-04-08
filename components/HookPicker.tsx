@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import type { PatternData, HookSource } from "@/lib/build-prompt";
 
 export interface SavedIdea {
@@ -153,7 +154,28 @@ function HookCard({
 }
 
 export default function HookPicker({ patterns, topic, selected, onSelect, onContinue, isLoading, savedIdeas, onToggleSave }: HookPickerProps) {
+  const [sortBy, setSortBy] = useState<"er" | "views">("er");
+  const [minEr, setMinEr] = useState<"all" | "2" | "5">("all");
   const hooks = patterns?.hooks ?? [];
+  const processedHooks = useMemo(() => {
+    const deduped = Array.from(
+      new Map(
+        hooks.map((hook) => {
+          const key = hook.text.trim().toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, " ");
+          return [key, hook] as const;
+        })
+      ).values()
+    );
+
+    const erThreshold = minEr === "all" ? 0 : Number(minEr) / 100;
+    const filtered = deduped.filter((hook) => (hook.avg_er ?? 0) >= erThreshold);
+
+    return filtered.sort((a, b) => {
+      if (sortBy === "views") return (b.views ?? 0) - (a.views ?? 0);
+      return (b.avg_er ?? 0) - (a.avg_er ?? 0);
+    });
+  }, [hooks, minEr, sortBy]);
+
   const scrapedAt = patterns?.scrapedAt
     ? new Date(patterns.scrapedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
     : null;
@@ -172,6 +194,36 @@ export default function HookPicker({ patterns, topic, selected, onSelect, onCont
             <span className="text-xs text-[#6B6B72]/50 font-mono flex-shrink-0 ml-2">scraped {scrapedAt}</span>
           )}
         </div>
+        {!isLoading && hooks.length > 0 && (
+          <div className="mt-3 flex items-center gap-2 flex-wrap">
+            <label className="text-[10px] uppercase tracking-widest text-[#6B6B72]" style={{ fontFamily: "Inter, sans-serif" }}>
+              Sort
+            </label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as "er" | "views")}
+              className="bg-[#111114] border border-[#1E1E24] text-[#F2F2F0] text-xs px-2 py-1.5 font-mono"
+            >
+              <option value="er">Top ER</option>
+              <option value="views">Top Views</option>
+            </select>
+            <label className="text-[10px] uppercase tracking-widest text-[#6B6B72] ml-2" style={{ fontFamily: "Inter, sans-serif" }}>
+              Min ER
+            </label>
+            <select
+              value={minEr}
+              onChange={(e) => setMinEr(e.target.value as "all" | "2" | "5")}
+              className="bg-[#111114] border border-[#1E1E24] text-[#F2F2F0] text-xs px-2 py-1.5 font-mono"
+            >
+              <option value="all">All</option>
+              <option value="2">2%+</option>
+              <option value="5">5%+</option>
+            </select>
+            <span className="text-[10px] text-[#6B6B72]/70 font-mono ml-auto">
+              {processedHooks.length} unique hooks
+            </span>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -183,16 +235,16 @@ export default function HookPicker({ patterns, topic, selected, onSelect, onCont
           </div>
           <span className="text-xs text-[#6B6B72] font-mono">Loading pattern library...</span>
         </div>
-      ) : hooks.length === 0 ? (
+      ) : processedHooks.length === 0 ? (
         <div className="border border-dashed border-[#1E1E24] p-6 text-center">
-          <p className="text-sm text-[#6B6B72] font-mono mb-1">No hooks scraped yet.</p>
+          <p className="text-sm text-[#6B6B72] font-mono mb-1">No hooks match this filter.</p>
           <p className="text-xs text-[#6B6B72]" style={{ fontFamily: "Inter, sans-serif" }}>
-            Run a scrape in Forge mode to pull live hooks with source links.
+            Try lowering the ER threshold or run a fresh scrape in Forge mode.
           </p>
         </div>
       ) : (
         <div className="space-y-2">
-          {hooks.slice(0, 10).map((hook, i) => (
+          {processedHooks.slice(0, 12).map((hook, i) => (
             <HookCard
               key={i}
               hook={hook}
