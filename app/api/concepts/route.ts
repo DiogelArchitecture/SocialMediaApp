@@ -23,6 +23,7 @@ export interface ConceptRequest {
   tone?: Tone;
   patterns?: PatternData | null;
   savedIdeas?: SavedIdea[];
+  context?: string;
 }
 
 export interface ScriptConcept {
@@ -60,7 +61,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = (await request.json()) as ConceptRequest;
-    const { topic, platform, duration, location, selectedHook, audience, tone, patterns, savedIdeas } = body;
+    const { topic, platform, duration, location, selectedHook, audience, tone, patterns, savedIdeas, context } = body;
+
+    const intelContext = context?.trim()
+      ? `CONTEXTUAL INTELLIGENCE — provided by Adam / Diogel team:\n\n${context.trim()}\n\nUse the intelligence above to ground concepts in real situations, real client language, and real fears. Mirror verbatim client phrases where they would strengthen a hook or premise.\n\n`
+      : "";
 
     const apiKey = (process.env.ANTHROPIC_API_KEY || "").replace(/[\u2013\u2014\u2212]/g, "-").trim();
     if (!apiKey) return errStream("ANTHROPIC_API_KEY is not set.");
@@ -100,7 +105,7 @@ export async function POST(request: NextRequest) {
       ? `For YouTube long-form, the "premise" field should outline the 3-phase arc: what the Hook phase challenges, what the Body builds, and what the Payoff delivers. The "format" field should name a long-form format type: Deep Dive / Myth vs Reality / Case Study Walkthrough / Step-by-Step Guide / Common Mistakes + Fix.`
       : `Make the 3 concepts meaningfully different in format and angle.`;
 
-    const prompt = `${hookContext}${patternContext}Generate exactly 3 distinct script concepts for a ${duration} ${platform} video about: "${topic}"
+    const prompt = `${intelContext}${hookContext}${patternContext}Generate exactly 3 distinct script concepts for a ${duration} ${platform} video about: "${topic}"
 
 Shooting location: ${location}
 ${audience ? `Audience: ${audience}` : ""}

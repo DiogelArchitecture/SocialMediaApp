@@ -17,7 +17,9 @@ interface InputPanelProps {
   tone: Tone;
   toggles: Toggles;
   isGenerating: boolean;
+  context: string;
   onTopicChange: (v: string) => void;
+  onContextChange: (v: string) => void;
   onPlatformChange: (v: Platform) => void;
   onDurationChange: (v: AnyDuration) => void;
   onLocationChange: (v: string) => void;
@@ -39,8 +41,8 @@ function isReady(mode: AppMode, topic: string, location: string): boolean {
 
 export default function InputPanel({
   mode, topic, platform, duration, location, audience, hookStyle, tone, toggles,
-  isGenerating, onTopicChange, onPlatformChange, onDurationChange, onLocationChange,
-  onAudienceChange, onHookStyleChange, onToneChange, onToggleChange, onGenerate,
+  isGenerating, context, onTopicChange, onContextChange, onPlatformChange, onDurationChange,
+  onLocationChange, onAudienceChange, onHookStyleChange, onToneChange, onToggleChange, onGenerate,
 }: InputPanelProps) {
   const ready = isReady(mode, topic, location);
 
@@ -58,6 +60,27 @@ export default function InputPanel({
           placeholder="e.g. loft conversion planning mistakes"
           className="w-full bg-[#111114] border border-[#1E1E24] text-[#F2F2F0] text-sm px-3 py-2.5 font-mono placeholder:text-[#6B6B72]/50 focus:outline-none focus:border-[#E8FF47]/50 transition-colors"
         />
+      </div>
+
+      {/* Context / Intel */}
+      <div>
+        <label className="block text-xs text-[#6B6B72] mb-1 uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>
+          Context / Intel
+          <span className="ml-2 normal-case text-[#6B6B72]/50 tracking-normal font-sans">optional</span>
+        </label>
+        <p className="text-xs text-[#6B6B72]/50 mb-2 font-mono">
+          Research notes, call highlights, customer feedback, team intel — paste anything. The script will be grounded in it.
+        </p>
+        <textarea
+          value={context}
+          onChange={(e) => onContextChange(e.target.value)}
+          placeholder={"e.g. Client fired their architect mid-project — they kept adding charges for every revision. Client's exact words: \"Every time we said we want the drawing changed, he kept adding more on and more on.\" This resonates with avatar fear #4 (ripped off) and #10 (let down by architect)."}
+          rows={4}
+          className="w-full bg-[#111114] border border-[#1E1E24] text-[#F2F2F0] text-sm px-3 py-2.5 font-mono placeholder:text-[#6B6B72]/30 focus:outline-none focus:border-[#E8FF47]/50 transition-colors resize-y leading-relaxed"
+        />
+        {context.trim().length > 0 && (
+          <p className="text-xs text-[#E8FF47]/60 mt-1 font-mono">{context.trim().length} chars · will be injected into every generation step</p>
+        )}
       </div>
 
       {/* Platform */}

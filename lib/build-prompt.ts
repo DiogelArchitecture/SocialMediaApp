@@ -83,6 +83,7 @@ export interface BuildPromptParams {
   mode: "quick" | "forge";
   selectedConcept?: SelectedConcept | null;
   ctaOverride?: { type: string; phrase: string } | null;
+  context?: string;
 }
 
 // ─── Shared: pattern block ────────────────────────────────────────────────────
@@ -120,12 +121,20 @@ function buildPatternBlock(params: BuildPromptParams, longForm = false): string 
   return `No fresh scrape data available. Use the built-in format library and your knowledge of high-performing UK home renovation content.\n\n`;
 }
 
+// ─── Context block ────────────────────────────────────────────────────────────
+
+function buildContextBlock(context: string | undefined): string {
+  if (!context?.trim()) return "";
+  return `CONTEXTUAL INTELLIGENCE — provided by Adam / Diogel team:\n\n${context.trim()}\n\nUse the intelligence above to ground the script in real situations, real client language, and real fears. Mirror verbatim phrases where they strengthen the hook or script. Do not invent situations that contradict the above.\n\n`;
+}
+
 // ─── Short-form prompt ────────────────────────────────────────────────────────
 
 export function buildUserPrompt(params: BuildPromptParams): string {
-  const { topic, platform, duration, location, audience, hookStyle, tone, toggles, mode, selectedConcept, ctaOverride } = params;
+  const { topic, platform, duration, location, audience, hookStyle, tone, toggles, mode, selectedConcept, ctaOverride, context } = params;
 
-  let prompt = buildPatternBlock(params);
+  let prompt = buildContextBlock(context);
+  prompt += buildPatternBlock(params);
 
   prompt += `SCRIPT BRIEF:\n`;
   prompt += `Topic: ${topic}\n`;
@@ -194,13 +203,14 @@ export function buildUserPrompt(params: BuildPromptParams): string {
 // ─── Long-form prompt (YouTube) ───────────────────────────────────────────────
 
 export function buildLongFormPrompt(params: BuildPromptParams): string {
-  const { topic, location, audience, tone, toggles, mode, selectedConcept, duration } = params;
+  const { topic, location, audience, tone, toggles, mode, selectedConcept, duration, context } = params;
 
   const dur = duration as LongFormDuration;
   const wordCount = LONGFORM_WORD_COUNT[dur] ?? 1500;
   const readTime = dur.replace("min", " min");
 
-  let prompt = buildPatternBlock(params, true);
+  let prompt = buildContextBlock(context);
+  prompt += buildPatternBlock(params, true);
 
   prompt += `LONG-FORM YOUTUBE SCRIPT BRIEF:\n`;
   prompt += `Topic: ${topic}\n`;
