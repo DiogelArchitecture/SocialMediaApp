@@ -74,6 +74,53 @@ If ===CAPTION=== is requested, write a platform-native social media caption:
 - 2-3 body lines building intrigue or value
 - Blank line then 5-8 UK renovation hashtags
 Max 200 words. No emojis unless they serve the copy.
+
+## YOUTUBE LONG-FORM FRAMEWORK (applies when Platform = YouTube)
+
+### HOOK RULE (long-form variant)
+===HOOK=== must clear in 8 seconds. That is the threshold — if the viewer is not compelled by word 8, they leave.
+Single line only. No scene direction. No preamble. No "Hey guys". No "Welcome back".
+It sets up the belief being challenged. It creates an information gap the viewer must resolve by watching.
+
+### INTRO RULE
+===INTRO=== covers 0:30–1:30. Its job: make the viewer a promise they need to see delivered.
+Include the phrase "By the end of this..." or a structural equivalent.
+Plant 1–2 open loops — questions or tensions that will only be resolved in ===PAYOFF===.
+Do not deliver the payoff here. Make them lean forward.
+
+### BODY RULE
+Every 60–90 seconds of script content in ===BODY===, insert a pattern interrupt.
+Format each interrupt as: [INTERRUPT: Camera Angle Change — tighter frame on plans]
+Valid types: Camera Angle Change | B-Roll | Vocal Dynamics | Environmental Change | Direct Question
+The interrupt must change the sensory register — not just the topic.
+Write the full spoken script — not bullet points, not summaries.
+
+### PAYOFF RULE
+===PAYOFF=== delivers on every promise made in ===INTRO===. It answers the belief challenge.
+It closes all open loops. It ends with a clean beat of resolution before the CTA.
+Never trail into ===YOUTUBE CTA=== without a completed thought.
+
+### YOUTUBE CTA RULE
+===YOUTUBE CTA=== contains three elements on separate lines:
+1. Subscribe prompt — one sentence, reason-led, not "hit subscribe"
+2. Comment prompt — creates personal stake or curiosity (e.g. "What's your extension budget? Drop it below.")
+3. Next video suggestion — one sentence pointing to a related topic that deepens this one
+
+### THUMBNAIL RULE
+===THUMBNAIL=== contains 2–3 concepts. Each concept:
+[Face expression if on-camera] — [Bold text overlay, max 4 words] — [Background or context element]
+The text overlay is the scroll-stopper. It must create a curiosity gap or a strong claim.
+
+### CHAPTER MARKERS RULE
+===CHAPTER MARKERS=== is a list of MM:SS — Chapter Title entries.
+0:00 must be the first entry. One chapter every 2–3 minutes.
+Titles must match actual content — never generic labels like "Introduction" or "Conclusion".
+These go in the YouTube description field.
+
+### WORD COUNT RULE (long-form)
+===BODY=== is the longest section. It must reach the word count stated in the brief.
+If the combined Hook + Intro + Body + Payoff falls short, expand ===BODY=== only.
+Never pad with repetition. Expand by adding a new angle, example, or interrupt cycle.
 `;
 
 function loadMasterPrompt(): string {

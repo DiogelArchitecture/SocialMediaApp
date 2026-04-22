@@ -1,12 +1,14 @@
 "use client";
 
-import type { Toggles } from "@/lib/build-prompt";
+import type { Toggles, Platform } from "@/lib/build-prompt";
+import { isLongFormPlatform } from "@/lib/build-prompt";
 import type { AppMode } from "./ModeTab";
 
 interface ToggleGroupProps {
   toggles: Toggles;
   onChange: (key: keyof Toggles) => void;
   mode: AppMode;
+  platform: Platform;
 }
 
 interface ToggleDef {
@@ -14,24 +16,33 @@ interface ToggleDef {
   label: string;
   description: string;
   forgeOnly?: boolean;
+  shortFormOnly?: boolean;
+  longFormOnly?: boolean;
 }
 
 const TOGGLE_DEFS: ToggleDef[] = [
-  { key: "viralCut", label: "Full viral cut", description: "30s HOOK / RETAIN / REWARD version" },
-  { key: "shotList", label: "Shot list", description: "Numbered shots with visual, audio & text" },
-  { key: "propsList", label: "Props list", description: "Min 3 props with usage and rationale", forgeOnly: true },
-  { key: "editNotes", label: "Edit notes", description: "Cuts, captions, overlays, loop mechanic", forgeOnly: true },
-  { key: "vfxIdeas", label: "VFX / AI overlay ideas", description: "Specific VFX moments for editor", forgeOnly: true },
-  { key: "packagingIdeas", label: "Packaging ideas", description: "3 title/thumbnail concepts", forgeOnly: true },
-  { key: "scrapeFresh",   label: "Scrape fresh data",  description: "Trigger Apify — bypasses cache",               forgeOnly: true },
-  { key: "equipment",    label: "Equipment list",     description: "Camera, audio & gear for the shoot location",  forgeOnly: true },
-  { key: "filmingTips",  label: "Filming tips",       description: "3–5 practical tips referencing shot numbers",  forgeOnly: true },
-  { key: "caption",      label: "Social caption",     description: "Platform-native caption with hashtags",        forgeOnly: true },
+  // Short-form only
+  { key: "viralCut",      label: "Full viral cut",          description: "30s HOOK / RETAIN / REWARD version",                  shortFormOnly: true },
+  { key: "shotList",      label: "Shot list",               description: "Numbered shots with visual, audio & text" },
+  { key: "propsList",     label: "Props list",              description: "Min 3 props with usage and rationale",                 forgeOnly: true, shortFormOnly: true },
+  { key: "editNotes",     label: "Edit notes",              description: "Cuts, captions, overlays, loop mechanic",              forgeOnly: true, shortFormOnly: true },
+  { key: "vfxIdeas",      label: "VFX / AI overlay ideas",  description: "Specific VFX moments for editor",                     forgeOnly: true, shortFormOnly: true },
+  { key: "packagingIdeas",label: "Packaging ideas",         description: "3 title/thumbnail concepts",                          forgeOnly: true, shortFormOnly: true },
+  { key: "scrapeFresh",   label: "Scrape fresh data",       description: "Trigger Apify — bypasses cache",                      forgeOnly: true },
+  { key: "equipment",     label: "Equipment list",          description: "Camera, audio & gear for the shoot location",          forgeOnly: true },
+  { key: "filmingTips",   label: "Filming tips",            description: "3–5 practical tips referencing shot numbers",          forgeOnly: true },
+  { key: "caption",       label: "Social caption",          description: "Platform-native caption with hashtags",               forgeOnly: true, shortFormOnly: true },
+  // Long-form only (YouTube)
+  { key: "chapterMarkers",label: "Chapter markers",         description: "Timestamped chapters for YouTube description",        forgeOnly: true, longFormOnly: true },
+  { key: "youtubeCta",    label: "YouTube CTA block",       description: "Subscribe / comment / next video prompts",            forgeOnly: true, longFormOnly: true },
 ];
 
-export default function ToggleGroup({ toggles, onChange, mode }: ToggleGroupProps) {
+export default function ToggleGroup({ toggles, onChange, mode, platform }: ToggleGroupProps) {
+  const isLong = isLongFormPlatform(platform);
   const visible = TOGGLE_DEFS.filter((t) => {
     if (mode === "quick" && t.forgeOnly) return false;
+    if (isLong && t.shortFormOnly) return false;
+    if (!isLong && t.longFormOnly) return false;
     return true;
   });
 

@@ -12,7 +12,8 @@ import ToggleGroup from "@/components/ToggleGroup";
 import OutputPanel from "@/components/OutputPanel";
 import RetentionTimeline from "@/components/RetentionTimeline";
 import SpinoffCard from "@/components/SpinoffCard";
-import type { Platform, Duration, Audience, HookStyle, Tone, Toggles, PatternData, HookSource } from "@/lib/build-prompt";
+import type { Platform, AnyDuration, Audience, HookStyle, Tone, Toggles, PatternData, HookSource } from "@/lib/build-prompt";
+import { isLongFormPlatform, isLongFormDuration } from "@/lib/build-prompt";
 import { parseAnalysis, type ParsedAnalysis } from "@/lib/analyse";
 import type { ScrapeStep } from "@/components/ScrapeProgress";
 import type { SpinoffIdea } from "@/lib/analyse";
@@ -45,6 +46,8 @@ const DEFAULT_TOGGLES: Toggles = {
   equipment: true,
   filmingTips: true,
   caption: false,
+  chapterMarkers: false,
+  youtubeCta: false,
 };
 
 const DEFAULT_TOGGLES_QUICK: Toggles = {
@@ -58,6 +61,23 @@ const DEFAULT_TOGGLES_QUICK: Toggles = {
   equipment: true,
   filmingTips: false,
   caption: false,
+  chapterMarkers: false,
+  youtubeCta: false,
+};
+
+const DEFAULT_TOGGLES_LONGFORM: Toggles = {
+  viralCut: false,
+  shotList: true,
+  propsList: false,
+  editNotes: false,
+  vfxIdeas: false,
+  packagingIdeas: false,
+  scrapeFresh: false,
+  equipment: true,
+  filmingTips: true,
+  caption: false,
+  chapterMarkers: true,
+  youtubeCta: true,
 };
 
 export default function Home() {
@@ -67,7 +87,7 @@ export default function Home() {
   // Brief fields
   const [topic, setTopic] = useState("");
   const [platform, setPlatform] = useState<Platform>("TikTok");
-  const [duration, setDuration] = useState<Duration>("60s");
+  const [duration, setDuration] = useState<AnyDuration>("60s");
   const [location, setLocation] = useState("");
   const [audience, setAudience] = useState<Audience>("First-time renovator");
   const [hookStyle, setHookStyle] = useState<HookStyle>("Auto");
@@ -147,6 +167,17 @@ export default function Home() {
     setConceptsError(null);
     setCtaType(null);
     setCtaPhrase("");
+  }
+
+  function handlePlatformChange(newPlatform: Platform) {
+    setPlatform(newPlatform);
+    const switchingToLong = isLongFormPlatform(newPlatform);
+    const currentlyLong = isLongFormDuration(duration);
+    if (switchingToLong && !currentlyLong) setDuration("10min");
+    else if (!switchingToLong && currentlyLong) setDuration("60s");
+    setToggles(switchingToLong ? DEFAULT_TOGGLES_LONGFORM : (mode === "quick" ? DEFAULT_TOGGLES_QUICK : DEFAULT_TOGGLES));
+    resetOutputState();
+    setStep(1);
   }
 
   function handleBack() {
@@ -386,7 +417,7 @@ export default function Home() {
 
   const briefReady = topic.trim().length > 2 && location.trim().length > 2;
 
-  const PLATFORMS: Platform[] = ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook Reels"];
+  const PLATFORMS: Platform[] = ["TikTok", "Instagram Reels", "YouTube Shorts", "YouTube", "Facebook Reels"];
 
   return (
     <div className="min-h-screen bg-[#0A0A0B] flex flex-col">
@@ -507,13 +538,13 @@ export default function Home() {
                     {/* Platform */}
                     <div>
                       <label className="block text-xs text-[#6B6B72] mb-2 uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>Platform</label>
-                      <select value={platform} onChange={e => setPlatform(e.target.value as Platform)}
+                      <select value={platform} onChange={e => handlePlatformChange(e.target.value as Platform)}
                         className="w-full bg-[#111114] border border-[#1E1E24] text-[#F2F2F0] text-sm px-3 py-2.5 font-mono focus:outline-none focus:border-[#E8FF47]/50 transition-colors appearance-none cursor-pointer">
                         {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
                       </select>
                     </div>
 
-                    <DurationSelector value={duration} onChange={setDuration} />
+                    <DurationSelector value={duration} onChange={setDuration} platform={platform} />
                     <LocationInput value={location} onChange={setLocation} />
 
                     {/* Forge-only fields */}
@@ -533,7 +564,7 @@ export default function Home() {
                             {(["High energy","Calm authority","Comedic","Urgent"] as Tone[]).map(t => <option key={t} value={t}>{t}</option>)}
                           </select>
                         </div>
-                        <ToggleGroup toggles={toggles} onChange={key => setToggles(p => ({ ...p, [key]: !p[key] }))} mode={mode} />
+                        <ToggleGroup toggles={toggles} onChange={key => setToggles(p => ({ ...p, [key]: !p[key] }))} mode={mode} platform={platform} />
                       </>
                     )}
 

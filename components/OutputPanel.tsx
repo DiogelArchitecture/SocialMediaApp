@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { parseStreamingOutput, SECTION_ORDER, SECTION_LABELS, type SectionKey } from "@/lib/parse-output";
+import { parseStreamingOutput, SECTION_ORDER, SECTION_ORDER_LONGFORM, SECTION_LABELS, type SectionKey } from "@/lib/parse-output";
+import type { Platform } from "@/lib/build-prompt";
+import { isLongFormPlatform } from "@/lib/build-prompt";
 import OutputCard from "./OutputCard";
 import ScrapeProgress, { type ScrapeStep } from "./ScrapeProgress";
 
@@ -12,7 +14,7 @@ interface OutputPanelProps {
   scrapeDetail?: string;
   onRegenerate?: (section: SectionKey) => void;
   topic?: string;
-  platform?: string;
+  platform?: Platform;
   selectedHook?: string | null;
   videoDuration?: string;
 }
@@ -39,7 +41,8 @@ export default function OutputPanel({
       panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [isGenerating]);
-  const availableSections = SECTION_ORDER.filter((key) => parsed[key]);
+  const sectionOrder = platform && isLongFormPlatform(platform) ? SECTION_ORDER_LONGFORM : SECTION_ORDER;
+  const availableSections = sectionOrder.filter((key) => parsed[key]);
 
   const isEmpty = !rawOutput && scrapeStep === "idle" && !isGenerating;
   const isDone = !isGenerating && availableSections.length > 0;

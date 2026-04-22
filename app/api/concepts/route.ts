@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { MASTER_PROMPT } from "@/lib/master-prompt";
-import type { Platform, Duration, Audience, Tone, PatternData } from "@/lib/build-prompt";
+import type { Platform, AnyDuration, Audience, Tone, PatternData } from "@/lib/build-prompt";
+import { isLongFormPlatform } from "@/lib/build-prompt";
 
 export const runtime = "nodejs";
 
@@ -15,7 +16,7 @@ interface SavedIdea {
 export interface ConceptRequest {
   topic: string;
   platform: Platform;
-  duration: Duration;
+  duration: AnyDuration;
   location: string;
   selectedHook?: string;
   audience?: Audience;
@@ -94,6 +95,11 @@ export async function POST(request: NextRequest) {
       patternContext += `SAVED IDEAS — the user starred these hooks across sessions. Mirror their format energy and tension level in at least one concept:\n${ideaLines}\n\n`;
     }
 
+    const isLong = isLongFormPlatform(platform);
+    const formatNote = isLong
+      ? `For YouTube long-form, the "premise" field should outline the 3-phase arc: what the Hook phase challenges, what the Body builds, and what the Payoff delivers. The "format" field should name a long-form format type: Deep Dive / Myth vs Reality / Case Study Walkthrough / Step-by-Step Guide / Common Mistakes + Fix.`
+      : `Make the 3 concepts meaningfully different in format and angle.`;
+
     const prompt = `${hookContext}${patternContext}Generate exactly 3 distinct script concepts for a ${duration} ${platform} video about: "${topic}"
 
 Shooting location: ${location}
@@ -109,15 +115,15 @@ Return ONLY valid JSON — no markdown, no explanation:
       "id": "1",
       "title": "Short punchy title (4-6 words)",
       "belief": "The commonly held belief this challenges (1 sentence)",
-      "hook": "Opening line — verbatim, 10 words max, no question that can be answered yes/no",
-      "premise": "2-sentence summary of the script structure and payoff",
-      "format": "Format type e.g. Inverse Hook / Myth Bust / Stat Drop / Before-After / Challenge",
+      "hook": "Opening line — verbatim, ${isLong ? "15 words max, must clear in 8 seconds of speech" : "10 words max, no question that can be answered yes/no"}",
+      "premise": "${isLong ? "3-sentence arc: Hook phase challenge → Body phase build → Payoff delivery" : "2-sentence summary of the script structure and payoff"}",
+      "format": "${isLong ? "Long-form format e.g. Deep Dive / Myth vs Reality / Case Study Walkthrough / Step-by-Step Guide / Common Mistakes + Fix" : "Format type e.g. Inverse Hook / Myth Bust / Stat Drop / Before-After / Challenge"}",
       "cta": "soft|hard|curiosity"
     }
   ]
 }
 
-Make the 3 concepts meaningfully different in format and angle. All must be grounded in UK renovation reality.`;
+${formatNote} All must be grounded in UK renovation reality.`;
 
     const client = new Anthropic({ apiKey });
 

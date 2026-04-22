@@ -1,6 +1,6 @@
 "use client";
 
-import type { Platform, Duration, Audience, HookStyle, Tone, Toggles } from "@/lib/build-prompt";
+import type { Platform, AnyDuration, Audience, HookStyle, Tone, Toggles } from "@/lib/build-prompt";
 import type { AppMode } from "./ModeTab";
 import DurationSelector from "./DurationSelector";
 import LocationInput from "./LocationInput";
@@ -10,7 +10,7 @@ interface InputPanelProps {
   mode: AppMode;
   topic: string;
   platform: Platform;
-  duration: Duration;
+  duration: AnyDuration;
   location: string;
   audience: Audience;
   hookStyle: HookStyle;
@@ -19,7 +19,7 @@ interface InputPanelProps {
   isGenerating: boolean;
   onTopicChange: (v: string) => void;
   onPlatformChange: (v: Platform) => void;
-  onDurationChange: (v: Duration) => void;
+  onDurationChange: (v: AnyDuration) => void;
   onLocationChange: (v: string) => void;
   onAudienceChange: (v: Audience) => void;
   onHookStyleChange: (v: HookStyle) => void;
@@ -77,7 +77,7 @@ export default function InputPanel({
       </div>
 
       {/* Duration */}
-      <DurationSelector value={duration} onChange={onDurationChange} />
+      <DurationSelector value={duration} onChange={onDurationChange} platform={platform} />
 
       {/* Location */}
       <LocationInput value={location} onChange={onLocationChange} />
@@ -133,7 +133,7 @@ export default function InputPanel({
       )}
 
       {/* Toggles */}
-      <ToggleGroup toggles={toggles} onChange={onToggleChange} mode={mode} />
+      <ToggleGroup toggles={toggles} onChange={onToggleChange} mode={mode} platform={platform} />
 
       {/* Generate button */}
       <button

@@ -130,10 +130,11 @@ export function listAllPatterns(): Array<{ platform: Platform; niche: string; da
 
 function slugToPlatform(slug: string): Platform | null {
   const map: Record<string, Platform> = {
-    tiktok: "TikTok",
-    instagram: "Instagram Reels",
-    youtube: "YouTube Shorts",
-    facebook: "Facebook Reels",
+    tiktok:           "TikTok",
+    instagram:        "Instagram Reels",
+    "youtube-shorts": "YouTube Shorts",
+    youtube:          "YouTube",
+    facebook:         "Facebook Reels",
   };
   return map[slug] ?? null;
 }

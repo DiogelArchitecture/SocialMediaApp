@@ -12,8 +12,9 @@ const CACHE_TTL_DAYS = 7;
 const ACTOR_IDS: Record<Platform, string> = {
   TikTok:             "clockworks/tiktok-scraper",
   "Instagram Reels":  "apify/instagram-reel-scraper",
-  "YouTube Shorts":   "streamers/youtube-scraper",          // apify/youtube-scraper was retired
-  "Facebook Reels":   "apify/facebook-video-search-scraper", // accepts plain keyword strings in startUrls
+  "YouTube Shorts":   "streamers/youtube-scraper",
+  YouTube:            "streamers/youtube-scraper",           // same actor, different maxResults config
+  "Facebook Reels":   "apify/facebook-video-search-scraper",
 };
 
 export interface ScrapedPost {
@@ -96,6 +97,7 @@ const NICHE_SEARCH_TERM: Record<Platform, string> = {
   "TikTok":           "home renovation UK",
   "Instagram Reels":  "homerenovation",
   "YouTube Shorts":   "home renovation UK",
+  "YouTube":          "home renovation UK",
   "Facebook Reels":   "home renovation UK",
 };
 
@@ -212,12 +214,11 @@ function buildActorInput(platform: Platform, searchTerm: string): Record<string,
     case "Instagram Reels":
       return { hashtags: [searchTerm.replace(/\s+/g, "")], resultsLimit: 20 };
     case "YouTube Shorts":
-      // streamers/youtube-scraper — searchKeywords drives search; set maxResults:0 to get Shorts only
-      return {
-        searchKeywords: searchTerm,
-        maxResults: 0,
-        maxResultsShorts: 20,
-      };
+      // streamers/youtube-scraper — maxResults:0 means Shorts only
+      return { searchKeywords: searchTerm, maxResults: 0, maxResultsShorts: 20 };
+    case "YouTube":
+      // Long-form videos only — inverse of Shorts config
+      return { searchKeywords: searchTerm, maxResults: 20, maxResultsShorts: 0 };
     case "Facebook Reels":
       // apify/facebook-video-search-scraper accepts plain keyword strings in startUrls
       return { startUrls: [searchTerm], maxVideos: 20 };
@@ -262,7 +263,9 @@ export async function fetchTranscript(url: string): Promise<{
 function detectPlatformFromUrl(url: string): Platform {
   if (url.includes("tiktok.com")) return "TikTok";
   if (url.includes("instagram.com")) return "Instagram Reels";
-  if (url.includes("youtube.com") || url.includes("youtu.be")) return "YouTube Shorts";
+  if (url.includes("youtube.com") || url.includes("youtu.be")) {
+    return url.includes("/shorts/") ? "YouTube Shorts" : "YouTube";
+  }
   if (url.includes("facebook.com") || url.includes("fb.watch")) return "Facebook Reels";
   return "TikTok";
 }
@@ -274,6 +277,7 @@ function buildTranscriptInput(platform: Platform, url: string): Record<string, u
     case "Instagram Reels":
       return { directUrls: [url] };
     case "YouTube Shorts":
+    case "YouTube":
       return { startUrls: [{ url }], includeTranscripts: true };
     case "Facebook Reels":
       return { startUrls: [url] };

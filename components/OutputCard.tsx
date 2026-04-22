@@ -12,10 +12,18 @@ interface OutputCardProps {
   videoDuration?: string;
 }
 
+function parseDurationToSeconds(d?: string): number | null {
+  if (!d) return null;
+  const minMatch = d.match(/^(\d+)min$/);
+  if (minMatch) return parseInt(minMatch[1], 10) * 60;
+  const secMatch = d.match(/^(\d+)s$/);
+  if (secMatch) return parseInt(secMatch[1], 10);
+  return null;
+}
+
 function getShotTiming(content: string, videoDuration?: string): string | null {
-  if (!videoDuration) return null;
-  const secs = parseInt(videoDuration, 10);
-  if (!secs || isNaN(secs)) return null;
+  const secs = parseDurationToSeconds(videoDuration);
+  if (!secs) return null;
   const shotCount = (content.match(/^SHOT \d+/gm) ?? []).length;
   if (shotCount === 0) return null;
   const perShot = (secs / shotCount).toFixed(1);
