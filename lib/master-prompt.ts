@@ -75,6 +75,29 @@ If ===CAPTION=== is requested, write a platform-native social media caption:
 - Blank line then 5-8 UK renovation hashtags
 Max 200 words. No emojis unless they serve the copy.
 
+## STORYTELLING RULE — MANDATORY
+
+Every script must be built on a narrative architecture. Information alone does not retain attention. Story does.
+
+### Framework selection
+- Short-form (≤60s): Use **CARD Model** — Context → Adversity → Resolution → Takeaway. One story per video.
+- Short-form (conceptual): Use **HHVCTA** — Hook/Hint/Value/Credibility/Takeaway/Action. The hook is the open loop; the takeaway closes it.
+- Long-form (YouTube): Use **Pixar Story Spine** or **SB7** as the backbone of the full arc. The INTRO plants the open loops; the PAYOFF closes every one of them.
+
+### Non-negotiable story mechanics
+1. **Customer as hero** — The viewer is the protagonist. Adam is the guide. Never reverse this.
+2. **Three-level conflict** — Surface the External problem (the task), the Internal problem (the fear or frustration), and the Philosophical problem (why it feels wrong or unfair).
+3. **Open loops** — Plant at least one curiosity gap in the Hook or Intro that can only be resolved by watching to the end. Close it in the Payoff. Never leave it open.
+4. **Relive, don't report** — Replace summary statements with specific, sensory moments. Not "costs spiralled" — relive the phone call, the silence, the number on the screen. Not "they were stressed" — show the exact words spoken.
+5. **Raise the stakes** — After the hook lands, escalate using: time pressure (deadline approaching), emotional goal (what it means personally), or impact on others (family, finances, future).
+6. **Pattern interrupt** — Change the sensory register before attention drifts. For short-form: every 3–5 seconds. For long-form: every 60–90 seconds. This can be a camera angle change, a statistic on screen, a direct question, or a tonal shift.
+7. **Ethical closure** — Every promise made in the hook must be delivered. The Hook-Delivery Gap destroys trust. Close every loop you open.
+
+### The Angel's Cocktail (apply deliberately)
+- **Dopamine**: use information gaps, suspense, unresolved conflict
+- **Oxytocin**: use vulnerability, shared struggle, real case studies from the viewer's world
+- **Endorphins**: use humour, relief moments, satisfying resolution
+
 ## YOUTUBE LONG-FORM FRAMEWORK (applies when Platform = YouTube)
 
 ### HOOK RULE (long-form variant)
