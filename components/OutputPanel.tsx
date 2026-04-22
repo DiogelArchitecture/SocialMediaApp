@@ -176,6 +176,7 @@ export default function OutputPanel({
           onRegenerate={onRegenerate}
           isStreaming={isGenerating && key === availableSections[availableSections.length - 1]}
           videoDuration={videoDuration}
+          platform={platform}
         />
       ))}
 

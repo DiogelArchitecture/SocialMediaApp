@@ -578,31 +578,44 @@ export default function Home() {
                           </select>
                         </div>
                         <div>
+                          <label className="block text-xs text-[#6B6B72] mb-2 uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>Hook Style</label>
+                          <select value={hookStyle} onChange={e => setHookStyle(e.target.value as HookStyle)}
+                            className="w-full bg-[#111114] border border-[#1E1E24] text-[#F2F2F0] text-sm px-3 py-2.5 font-mono focus:outline-none focus:border-[#E8FF47]/50 transition-colors appearance-none cursor-pointer">
+                            {(["Auto","Inverse","Disruption","Question","Stat-led"] as HookStyle[]).map(h => <option key={h} value={h}>{h}</option>)}
+                          </select>
+                        </div>
+                        <div>
                           <label className="block text-xs text-[#6B6B72] mb-2 uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>Tone</label>
                           <select value={tone} onChange={e => setTone(e.target.value as Tone)}
                             className="w-full bg-[#111114] border border-[#1E1E24] text-[#F2F2F0] text-sm px-3 py-2.5 font-mono focus:outline-none focus:border-[#E8FF47]/50 transition-colors appearance-none cursor-pointer">
                             {(["High energy","Calm authority","Comedic","Urgent"] as Tone[]).map(t => <option key={t} value={t}>{t}</option>)}
                           </select>
                         </div>
-                        <ToggleGroup toggles={toggles} onChange={key => setToggles(p => ({ ...p, [key]: !p[key] }))} mode={mode} platform={platform} />
                       </>
                     )}
+
+                    {/* Output options — visible in both modes (ToggleGroup filters by mode internally) */}
+                    <ToggleGroup toggles={toggles} onChange={key => setToggles(p => ({ ...p, [key]: !p[key] }))} mode={mode} platform={platform} />
 
                     {/* Action buttons */}
                     <div className="flex gap-3 pt-1">
                       <button onClick={() => handleFindHooks()} disabled={!briefReady}
                         className={`flex-1 py-3.5 text-sm transition-all ${briefReady ? "bg-[#E8FF47] text-[#0A0A0B] hover:bg-[#d4eb2a] btn-generate-ready cursor-pointer" : "bg-[#1E1E24] text-[#6B6B72] cursor-not-allowed"}`}
                         style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.1em" }}>
-                        FIND HOOKS →
+                        {mode === "forge" ? "FIND HOOKS →" : "CONTINUE →"}
                       </button>
                       <button onClick={handleRandom}
                         className="px-4 py-3.5 text-sm border border-[#1E1E24] text-[#6B6B72] hover:border-[#FF4F1F]/60 hover:text-[#FF4F1F] transition-all cursor-pointer flex-shrink-0"
                         style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.08em" }}
-                        title="Pick a random UK renovation topic and start the pipeline">
+                        title="Pick a random UK renovation topic and run the full pipeline">
                         RANDOM
                       </button>
                     </div>
-                    <p className="text-xs text-[#6B6B72]/60 text-center" style={{ fontFamily: "DM Mono, monospace" }}>RANDOM seeds a topic — you still pick the hook, concept &amp; CTA</p>
+                    {!briefReady && (
+                      <p className="text-xs text-[#6B6B72]/50 text-center font-mono">
+                        Topic and location required to continue
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -758,41 +771,85 @@ export default function Home() {
                 )}
 
                 {/* ── STEP 4: SCRIPT (left panel summary) ── */}
-                {step === 4 && (
-                  <div className="space-y-4">
-                    {concepts.find(c => c.id === selectedConceptId) && (
-                      <div className="border border-[#E8FF47]/20 bg-[#E8FF47]/3 p-4 space-y-2">
-                        <span className="text-xs text-[#E8FF47] uppercase tracking-widest" style={{ fontFamily: "Anton, sans-serif" }}>Generating</span>
-                        <p className="text-sm font-mono text-[#F2F2F0]">{concepts.find(c => c.id === selectedConceptId)?.title}</p>
-                        <p className="text-xs text-[#6B6B72] font-mono italic">&ldquo;{concepts.find(c => c.id === selectedConceptId)?.hook}&rdquo;</p>
+                {step === 4 && (() => {
+                  const activeConcept = concepts.find(c => c.id === selectedConceptId);
+                  return (
+                    <div className="space-y-4">
+                      {activeConcept && (
+                        <div className="border border-[#E8FF47]/20 bg-[#E8FF47]/3 p-4 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-1.5 h-1.5 rounded-full ${isGenerating ? "bg-[#E8FF47] animate-pulse" : "bg-[#4ade80]"}`} />
+                            <span className="text-xs text-[#E8FF47] uppercase tracking-widest" style={{ fontFamily: "Anton, sans-serif" }}>
+                              {isGenerating ? "Generating..." : "Script ready"}
+                            </span>
+                          </div>
+                          <p className="text-sm font-mono text-[#F2F2F0] font-medium">{activeConcept.title}</p>
+                          <p className="text-xs text-[#6B6B72] font-mono italic leading-snug">&ldquo;{activeConcept.hook}&rdquo;</p>
+                        </div>
+                      )}
+
+                      <div className="space-y-1.5 text-xs font-mono">
+                        <div className="flex justify-between gap-2">
+                          <span className="text-[#6B6B72]">Topic</span>
+                          <span className="text-[#F2F2F0] text-right truncate max-w-[60%]">{topic}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                          <span className="text-[#6B6B72]">Platform</span>
+                          <span className="text-[#F2F2F0]">{platform}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                          <span className="text-[#6B6B72]">Duration</span>
+                          <span className="text-[#F2F2F0]">{duration}</span>
+                        </div>
+                        <div className="flex justify-between gap-2">
+                          <span className="text-[#6B6B72]">Location</span>
+                          <span className="text-[#F2F2F0] text-right truncate max-w-[60%]">{location}</span>
+                        </div>
+                        {context.trim().length > 0 && (
+                          <div className="flex justify-between gap-2">
+                            <span className="text-[#6B6B72]">Intel</span>
+                            <span className="text-[#E8FF47]/70">{context.trim().length} chars</span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    <div className="space-y-2 text-xs text-[#6B6B72] font-mono">
-                      <p>Topic: <span className="text-[#F2F2F0]">{topic}</span></p>
-                      <p>Platform: <span className="text-[#F2F2F0]">{platform}</span></p>
-                      <p>Duration: <span className="text-[#F2F2F0]">{duration}</span></p>
-                      <p>Location: <span className="text-[#F2F2F0]">{location}</span></p>
+
+                      <div className="flex gap-2 pt-1">
+                        <button onClick={handleGenerateScript} disabled={isGenerating}
+                          className={`flex-1 py-2.5 text-xs transition-colors ${isGenerating ? "bg-[#1E1E24] text-[#6B6B72] cursor-not-allowed" : "border border-[#E8FF47]/30 text-[#E8FF47] hover:bg-[#E8FF47]/10 cursor-pointer"}`}
+                          style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.08em" }}>
+                          ↺ REGENERATE
+                        </button>
+                        <button onClick={() => { setStep(1); resetOutputState(); }}
+                          className="flex-1 py-2.5 text-xs border border-[#1E1E24] text-[#6B6B72] hover:text-[#F2F2F0] hover:border-[#6B6B72] transition-colors"
+                          style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.08em" }}>
+                          ← NEW SCRIPT
+                        </button>
+                      </div>
                     </div>
-                    <button onClick={() => { setStep(1); resetOutputState(); }}
-                      className="w-full py-2.5 text-xs border border-[#1E1E24] text-[#6B6B72] hover:text-[#F2F2F0] hover:border-[#6B6B72] transition-colors"
-                      style={{ fontFamily: "Anton, sans-serif", letterSpacing: "0.08em" }}>
-                      ← START OVER
-                    </button>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
 
             {/* Right — output */}
             <div className="flex-1 p-6 overflow-y-auto">
               {step < 4 && (
-                <div className="flex flex-col items-center justify-center min-h-[400px] border border-dashed border-[#1E1E24] text-center p-8">
-                  <div className="text-4xl mb-4 opacity-10" style={{ fontFamily: "Anton, sans-serif" }}>SCRIPT-FORGE</div>
-                  <p className="text-sm text-[#6B6B72] font-mono max-w-xs">
-                    {step === 1 && "Fill in your brief and hit Find Hooks to begin."}
-                    {step === 2 && "Pick a hook — or skip to let Claude choose."}
-                    {step === 3 && "Choose a concept. The full script generates next."}
+                <div className="flex flex-col items-center justify-center min-h-[400px] border border-dashed border-[#1E1E24] text-center p-8 space-y-3">
+                  <div className="text-4xl opacity-10" style={{ fontFamily: "Anton, sans-serif" }}>SCRIPT-FORGE</div>
+                  <p className="text-sm text-[#6B6B72] font-mono max-w-sm">
+                    {step === 1 && "Fill in your brief on the left. Topic + location unlock the pipeline."}
+                    {step === 2 && (mode === "forge" ? "Real hooks from live data — pick one or let Claude auto-select." : "Pattern library loaded — pick a hook or skip to concepts.")}
+                    {step === 3 && "Pick a concept, choose your CTA, then hit Generate."}
                   </p>
+                  <div className="flex items-center gap-6 pt-2 opacity-40">
+                    {step >= 1 && <span className="text-xs font-mono text-[#E8FF47]">① BRIEF</span>}
+                    <span className="text-[#1E1E24]">─</span>
+                    {step >= 2 && <span className="text-xs font-mono text-[#E8FF47]">② HOOKS</span>}
+                    <span className="text-[#1E1E24]">─</span>
+                    {step >= 3 && <span className="text-xs font-mono text-[#E8FF47]">③ CONCEPT</span>}
+                    <span className="text-[#1E1E24]">─</span>
+                    <span className="text-xs font-mono text-[#6B6B72]">④ SCRIPT</span>
+                  </div>
                 </div>
               )}
 
