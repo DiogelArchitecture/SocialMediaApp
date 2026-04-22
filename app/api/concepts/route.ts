@@ -137,7 +137,7 @@ ${formatNote} All must be grounded in UK renovation reality.`;
         try {
           const response = await client.messages.create({
             model: "claude-sonnet-4-6",
-            max_tokens: 1024,
+            max_tokens: 2048,
             system: SYSTEM,
             messages: [{ role: "user", content: prompt }],
           });
@@ -146,7 +146,13 @@ ${formatNote} All must be grounded in UK renovation reality.`;
           let concepts: ScriptConcept[] = [];
 
           try {
-            const parsed = JSON.parse(raw.replace(/```json\n?|\n?```/g, "").trim());
+            // Strip markdown code fences, then find the outermost { } so
+            // any preamble or postamble Claude adds doesn't break parsing
+            const stripped = raw.replace(/```(?:json)?\n?/g, "").trim();
+            const start = stripped.indexOf("{");
+            const end = stripped.lastIndexOf("}");
+            const jsonStr = start !== -1 && end > start ? stripped.slice(start, end + 1) : stripped;
+            const parsed = JSON.parse(jsonStr);
             concepts = parsed.concepts ?? [];
           } catch {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Failed to parse concepts from Claude response." })}\n\n`));
