@@ -237,20 +237,24 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
   prompt += `OUTPUT FORMAT — produce ALL of the following sections in this exact order:\n\n`;
 
   prompt += `===HOOK===\n`;
-  prompt += `The single opening line. Must clear in 8 seconds — this decides whether the viewer stays or leaves.\n`;
-  prompt += `No preamble. No "Hey guys". No "Welcome back". Get to the value in the first word.\n`;
-  prompt += `Choose one hook type: Results-Reveal / Story-Tease / Bold-Claim / Question Hook / In Media Res.\n\n`;
+  prompt += `The PPP opening — all three phases, spoken verbatim, covering the first ~90 seconds of the video.\n\n`;
+  prompt += `PHASE 1 — PROOF (The Mess + The Badge):\n`;
+  prompt += `Write 3–4 specific, gritty vignettes of the problem. Each must feel real — a real number, a real situation, a real moment. NOT generic descriptions.\n`;
+  prompt += `End Phase 1 with this verbatim transition: "They all think their situation is unique — it isn't."\n`;
+  prompt += `Then this verbatim badge (fill the realisation based on the video): "My name's Adam, and after 20 years in this game, taking 40 of these calls a week and helping over 4,000 families fix their homes, I've realised... [core realisation]."\n\n`;
+  prompt += `PHASE 2 — PROMISE (The Gear-Shift):\n`;
+  prompt += `MUST start with the word "Ultimately" — no exceptions.\n`;
+  prompt += `Name the ONE specific secret, document, conversation, or framework this video delivers. Be concrete, not vague.\n`;
+  prompt += `Include an "It's like..." analogy (use the word "like" once as a tonal softener and everyday-analogy bridge).\n\n`;
+  prompt += `PHASE 3 — PLAN (The Roadmap):\n`;
+  prompt += `Give 2–3 specific things for the viewer to watch for (a document, a template, a number, a moment — not "key points").\n`;
+  prompt += `Close with this verbatim phrase: "That's it. That's basically it. Let's get into it."\n\n`;
 
   prompt += `===BELIEF===\n`;
   prompt += `The commonly held belief this video challenges (1 sentence).\n\n`;
 
-  prompt += `===INTRO===\n`;
-  prompt += `0:30–1:30 of the video (~150 words). Establish what the viewer will know by the end.\n`;
-  prompt += `Include a structural promise: "By the end of this..." or equivalent.\n`;
-  prompt += `Plant 1–2 open loops — questions or tensions that will only be resolved in the payoff. Do not deliver the payoff here.\n\n`;
-
   prompt += `===BODY===\n`;
-  prompt += `The main content — target ${wordCount - 400} words for this section.\n`;
+  prompt += `The main content — starts immediately after "Let's get into it." — target ${wordCount - 300} words for this section.\n`;
   prompt += `Insert a [INTERRUPT] marker every 60–90 seconds of speaking content.\n`;
   prompt += `Each interrupt must be formatted as: [INTERRUPT: Type — specific action]\n`;
   prompt += `Valid interrupt types: Camera Angle Change | B-Roll | Vocal Dynamics | Environmental Change | Direct Question\n`;
@@ -258,8 +262,8 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
   prompt += `Write the full spoken script here, not bullet points or summaries.\n\n`;
 
   prompt += `===PAYOFF===\n`;
-  prompt += `Final ~150 words. Close every open loop planted in the Intro. Deliver the promised resolution.\n`;
-  prompt += `End with a clean beat of resolution before the CTA — never blur into the CTA without a pause.\n\n`;
+  prompt += `Final ~150 words. Deliver on every watch-for named in Phase 3 of the PPP opening. Close all open loops.\n`;
+  prompt += `End with a clean beat of resolution — never trail directly into the CTA without a completed thought.\n\n`;
 
   prompt += `===YOUTUBE CTA===\n`;
   prompt += `Three elements on separate lines:\n`;

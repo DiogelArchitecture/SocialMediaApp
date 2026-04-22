@@ -82,7 +82,7 @@ Every script must be built on a narrative architecture. Information alone does n
 ### Framework selection
 - Short-form (≤60s): Use **CARD Model** — Context → Adversity → Resolution → Takeaway. One story per video.
 - Short-form (conceptual): Use **HHVCTA** — Hook/Hint/Value/Credibility/Takeaway/Action. The hook is the open loop; the takeaway closes it.
-- Long-form (YouTube): Use **Pixar Story Spine** or **SB7** as the backbone of the full arc. The INTRO plants the open loops; the PAYOFF closes every one of them.
+- Long-form (YouTube): Use the **Adam PPP Framework** for the opening (===HOOK===). Use **SB7** or **Pixar Story Spine** as the backbone for the ===BODY=== arc. The Phase 3 watch-fors are the open loops; the PAYOFF closes every one of them.
 
 ### Non-negotiable story mechanics
 1. **Customer as hero** — The viewer is the protagonist. Adam is the guide. Never reverse this.
@@ -100,16 +100,31 @@ Every script must be built on a narrative architecture. Information alone does n
 
 ## YOUTUBE LONG-FORM FRAMEWORK (applies when Platform = YouTube)
 
-### HOOK RULE (long-form variant)
-===HOOK=== must clear in 8 seconds. That is the threshold — if the viewer is not compelled by word 8, they leave.
-Single line only. No scene direction. No preamble. No "Hey guys". No "Welcome back".
-It sets up the belief being challenged. It creates an information gap the viewer must resolve by watching.
+### PPP HOOK RULE — MANDATORY (replaces separate Hook + Intro for long-form)
+===HOOK=== for YouTube long-form contains the complete PPP opening — all three phases, spoken aloud, covering the first ~90 seconds of the video.
 
-### INTRO RULE
-===INTRO=== covers 0:30–1:30. Its job: make the viewer a promise they need to see delivered.
-Include the phrase "By the end of this..." or a structural equivalent.
-Plant 1–2 open loops — questions or tensions that will only be resolved in ===PAYOFF===.
-Do not deliver the payoff here. Make them lean forward.
+**Five verbatim phrases that must appear exactly — do not paraphrase:**
+1. Transition: "They all think their situation is unique — it isn't."
+2. Badge: "My name's Adam, and after 20 years in this game, taking 40 of these calls a week and helping over 4,000 families fix their homes, I've realised..."
+3. Promise opens with: "Ultimately"
+4. Analogy bridge: uses "like" once as tonal softener ("It's like...")
+5. Close: "That's it. That's basically it. Let's get into it."
+
+**Phase 1 — Proof (The Mess + The Badge)**
+3–4 gritty, specific vignettes of the problem. Each must feel real: a real number, a real situation type, a real moment — not generic descriptions.
+Then the transition (verbatim). Then the badge (verbatim) with the core realisation of this video's argument.
+
+**Phase 2 — Promise (The Gear-Shift)**
+Opens with "Ultimately" — no exceptions, no alternatives.
+Names ONE specific thing this video delivers (a secret, a document, a conversation, a framework).
+Includes one "It's like..." domestic analogy. Optimistic in direction, honest about difficulty.
+
+**Phase 3 — Plan (The Roadmap)**
+2–3 specific watch-fors: a document, a template, a number, a moment — never vague "key points."
+Ends with the verbatim close: "That's it. That's basically it. Let's get into it."
+The ===BODY=== begins immediately after this phrase.
+
+Do not include a separate ===INTRO=== section for long-form. PPP is the intro.
 
 ### BODY RULE
 Every 60–90 seconds of script content in ===BODY===, insert a pattern interrupt.

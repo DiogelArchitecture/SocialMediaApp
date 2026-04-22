@@ -103,7 +103,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   vfx:          "VFX / AI Overlay Ideas",
   caption:      "Caption",
   // Long-form
-  intro:         "Intro (0:30–1:30)",
+  intro:         "PPP Intro",
   body:          "Body Script",
   payoff:        "Payoff",
   youtubeCta:    "YouTube CTA",
@@ -129,7 +129,6 @@ export const SECTION_ORDER: SectionKey[] = [
 export const SECTION_ORDER_LONGFORM: SectionKey[] = [
   "hook",
   "belief",
-  "intro",
   "body",
   "payoff",
   "shotList",
