@@ -237,24 +237,24 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
   prompt += `OUTPUT FORMAT — produce ALL of the following sections in this exact order:\n\n`;
 
   prompt += `===HOOK===\n`;
-  prompt += `The PPP opening — all three phases, spoken verbatim, covering the first ~90 seconds of the video.\n\n`;
-  prompt += `PHASE 1 — PROOF (The Mess + The Badge):\n`;
-  prompt += `Write 3–4 specific, gritty vignettes of the problem. Each must feel real — a real number, a real situation, a real moment. NOT generic descriptions.\n`;
-  prompt += `End Phase 1 with this verbatim transition: "They all think their situation is unique — it isn't."\n`;
-  prompt += `Then this verbatim badge (fill the realisation based on the video): "My name's Adam, and after 20 years in this game, taking 40 of these calls a week and helping over 4,000 families fix their homes, I've realised... [core realisation]."\n\n`;
-  prompt += `PHASE 2 — PROMISE (The Gear-Shift):\n`;
-  prompt += `MUST start with the word "Ultimately" — no exceptions.\n`;
-  prompt += `Name the ONE specific secret, document, conversation, or framework this video delivers. Be concrete, not vague.\n`;
-  prompt += `Include an "It's like..." analogy (use the word "like" once as a tonal softener and everyday-analogy bridge).\n\n`;
-  prompt += `PHASE 3 — PLAN (The Roadmap):\n`;
-  prompt += `Give 2–3 specific things for the viewer to watch for (a document, a template, a number, a moment — not "key points").\n`;
-  prompt += `Close with this verbatim phrase: "That's it. That's basically it. Let's get into it."\n\n`;
+  prompt += `The PPP opening — all three phases, spoken aloud, covering the first ~60–90 seconds of the video.\n\n`;
+  prompt += `PHASE 1 — PROOF:\n`;
+  prompt += `One specific, real story. NOT a list of vignettes — ONE family, ONE moment, ONE concrete detail.\n`;
+  prompt += `Template: "Last [time period], I spoke to a family who [specific problem or result]. My name's Adam, owner of Diogel Architecture, I speak to 40 homeowners a week, and every year we help over 200 families through [project type]."\n`;
+  prompt += `Rules: Open with "Last [time period]". The badge line structure is fixed — do not rearrange. Move directly to Phase 2 with no transition line between them.\n\n`;
+  prompt += `PHASE 2 — PROMISE:\n`;
+  prompt += `Template: "In this video I'm going to show you exactly [what/how — be concrete and specific], so you can [dream outcome] — even if [the viewer's main objection or blocker they believe disqualifies them]."\n`;
+  prompt += `Rules: "In this video I'm going to show you exactly" is the fixed opener — do not paraphrase. The "even if" must name the real objection. This Promise is a contract — it must be delivered in ===PAYOFF===.\n\n`;
+  prompt += `PHASE 3 — PLAN:\n`;
+  prompt += `Template: "I'm going to break it down into three parts — [Part 1 name], [Part 2 name], and [Part 3 name]."\n`;
+  prompt += `Rules: Exactly three parts. Make the part names specific enough that the viewer knows what's coming. CRITICAL: these three parts ARE the structure of ===BODY=== — the body must use them as its organising headings, each verbally signposted in the spoken script. The ===BODY=== begins immediately after this line.\n\n`;
 
   prompt += `===BELIEF===\n`;
   prompt += `The commonly held belief this video challenges (1 sentence).\n\n`;
 
   prompt += `===BODY===\n`;
-  prompt += `The main content — starts immediately after "Let's get into it." — target ${wordCount - 300} words for this section.\n`;
+  prompt += `The main content — organised around the three parts named in Phase 3 of the PPP. Each part must be introduced with a natural spoken signpost (e.g. "Let's start with part one — [Part 1 name]."). Target ${wordCount - 300} words for this section.\n`;
+  prompt += `The "even if" objection from Phase 2 must be directly addressed within one of these parts.\n`;
   prompt += `Insert a [INTERRUPT] marker every 60–90 seconds of speaking content.\n`;
   prompt += `Each interrupt must be formatted as: [INTERRUPT: Type — specific action]\n`;
   prompt += `Valid interrupt types: Camera Angle Change | B-Roll | Vocal Dynamics | Environmental Change | Direct Question\n`;
@@ -262,8 +262,7 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
   prompt += `Write the full spoken script here, not bullet points or summaries.\n\n`;
 
   prompt += `===PAYOFF===\n`;
-  prompt += `Final ~150 words. Deliver on every watch-for named in Phase 3 of the PPP opening. Close all open loops.\n`;
-  prompt += `End with a clean beat of resolution — never trail directly into the CTA without a completed thought.\n\n`;
+  prompt += `Final ~150 words. MUST explicitly deliver on the Promise from Phase 2 — name the dream outcome and confirm the viewer now has what they need to achieve it. If the family story from Phase 1 was left open, close it here ("That family I mentioned at the start..."). Close all open loops. End with a clean beat of resolution — never trail directly into the CTA without a completed thought.\n\n`;
 
   prompt += `===YOUTUBE CTA===\n`;
   prompt += `Three elements on separate lines:\n`;

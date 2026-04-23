@@ -2,92 +2,95 @@
 
 ## Role Context
 
-Adam is a high-level architectural strategist with 20 years of practice. His voice is a "knowledgeable insider who refuses to perform expertise." He weaponises simplicity and analogies to make complex systems (planning, construction, design) feel manageable. He is never the hero of the story — the homeowner is.
+Adam is a high-level architectural strategist. His voice is a "knowledgeable insider who refuses to perform expertise." He weaponises simplicity and analogies to make complex systems feel manageable. He is never the hero of the story — the homeowner is.
 
 ---
 
 ## The PPP Structure: Proof → Promise → Plan
 
-Every long-form YouTube video must open with this three-phase structure. It is the hook of the video. It is not optional. It is not a template to adapt loosely — the specific linguistic rules below are non-negotiable.
+Every long-form YouTube video must open with this three-phase structure. It covers the first ~60–90 seconds. It is not optional and not loosely adapted — the templates below are non-negotiable.
 
 ---
 
-### Phase 1: The Proof (The Mess + The Badge)
+### Phase 1 — Proof
 
-**The Mess**
-Open with 3–4 specific, gritty vignettes of the problem related to the video topic. Each vignette must be specific enough to feel real — not "people lose money" but "ten grand on drawings the council won't even look at." Ground each in a real situation (a real client type, a real moment, a real number where possible).
+One specific, real story. Not a list of problems — one family, one situation, one moment.
 
-**The Transition (verbatim)**
-End The Mess with this exact line:
-> "They all think their situation is unique — it isn't."
+**Template (fill in the brackets):**
+> "Last [time period], I spoke to a family who [specific result or problem they faced]. My name's Adam, owner of Diogel Architecture, I speak to 40 homeowners a week, and every year we help over 200 families through [relevant project type]."
 
-**The Badge (verbatim)**
-Immediately follow with this exact authority anchor (fill in the realisation based on the video content):
-> "My name's Adam, and after 20 years in this game, taking 40 of these calls a week and helping over 4,000 families fix their homes, I've realised... [insert the core realisation of the video]."
-
----
-
-### Phase 2: The Promise (The Gear-Shift)
-
-**The Opener (mandatory)**
-This section MUST start with the word "Ultimately". No exception.
-
-**The Outcome**
-Identify the one conversation, secret, document, or framework that resolves the mess in Phase 1. Be specific — not "I'll show you the fix" but "the one Validation Secret that forces the council to stop stalling."
-
-**The Tone**
-Optimistic in direction, honest about difficulty. Do not oversell. Do not hedge so much it loses momentum.
-
-**The Adam-ism**
-Use the word "like" once as a tonal softener and analogy bridge. Format: "It's like [everyday domestic analogy that makes the complexity feel manageable]."
+**Rules:**
+- "Last [time period]" opens the phase — could be "last week," "last month," "two weeks ago"
+- The family story must be concrete: a real outcome, a real mistake, a real number — not "they were stressed"
+- The badge line is fixed in structure: name → company → volume claim → project type. Do not rearrange it.
+- The badge ends the Proof. Move immediately into the Promise — no transition line between them.
 
 ---
 
-### Phase 3: The Plan (The Roadmap)
+### Phase 2 — Promise
 
-**The Lens**
-Give the viewer 2–3 specific things to watch for in the video. These must be concrete (a document, an email template, a specific number, a moment to pause) — not vague ("the main points").
+One clear statement of what this video delivers and why it matters to the viewer.
 
-**The Close (verbatim)**
-End Phase 3 — and the entire PPP opening — with this exact phrase:
-> "That's it. That's basically it. Let's get into it."
+**Template (fill in the brackets):**
+> "In this video I'm going to show you exactly [what / how to do something specific], so you can [dream outcome or result] — even if [the most common objection or blocker the viewer faces]."
+
+**Rules:**
+- "In this video I'm going to show you exactly" is the fixed opener — do not paraphrase
+- The "what/how" must be concrete, not vague ("the three documents you need" not "the key information")
+- The dream outcome must be something the viewer emotionally wants, not just a task completion
+- The "even if" objection handle must be the real blocker — the thing they think disqualifies them
+- This Promise is a contract. It must be delivered before the video ends.
 
 ---
 
-## Verbatim Rules
+### Phase 3 — Plan
 
-| Element | Rule |
+Three explicit parts that map directly to the Body of the video.
+
+**Template:**
+> "I'm going to break it down into three parts — [Part 1 name], [Part 2 name], and [Part 3 name]."
+
+**Rules:**
+- Exactly three parts — not two, not four
+- Each part name must be specific enough that the viewer knows what's coming (not "part one, two, three")
+- These three parts ARE the structure of ===BODY===. The body must be organised around them, with each part clearly signposted in the spoken script
+- The Plan closes the PPP opening. The ===BODY=== begins immediately after this line.
+
+---
+
+## Continuity Contract
+
+The PPP opening creates three obligations that must be fulfilled:
+
+| Opening element | Must be delivered in |
 |---|---|
-| Transition | Always: "They all think their situation is unique — it isn't." |
-| Badge opener | Always: "My name's Adam, and after 20 years in this game, taking 40 of these calls a week and helping over 4,000 families fix their homes, I've realised..." |
-| Promise opener | Always starts with: "Ultimately" |
-| Analogy bridge | Always contains "like" used as softener ("It's like...") |
-| Close | Always: "That's it. That's basically it. Let's get into it." |
+| The family story (Proof) | Referenced or resolved in ===PAYOFF=== — close the loop on what happened to them |
+| The Promise outcome | Delivered explicitly in ===PAYOFF=== — the viewer must feel the promise was kept |
+| The "even if" objection | Addressed directly in one of the three Body parts |
+| The three Plan parts | Used as the structural headings of ===BODY=== — signposted verbally in the script |
 
-These five phrases are not paraphrased. They are Adam's signature language. Altering them breaks the framework.
+Never leave a loop open. If you name it in the opening, you resolve it before the CTA.
 
 ---
 
 ## Annotated Example — Topic: Planning Permission Delays
 
 **Phase 1 (Proof):**
-> "One guy waiting eight months for a simple 'yes.' Another who just found out his 'lawful' extension actually isn't. A third who's spent ten grand on drawings the council won't even look at. They all think their situation is unique — it isn't.
->
-> My name's Adam, and after 20 years in this game, taking 40 of these calls a week and helping over 4,000 families fix their homes, I've realised the addresses change, but the actual problem? Same one. Every time."
+> "Last week, I spoke to a family who had waited nine months for a planning decision — and they'd just found out the council had lost their application. My name's Adam, owner of Diogel Architecture, I speak to 40 homeowners a week, and every year we help over 200 families through the planning process."
 
 **Phase 2 (Promise):**
-> "Ultimately, what it means is you're playing a game where nobody gave you the rulebook. It's like trying to bake a cake when you've never seen a kitchen. In this video, I'm going to show you the one 'Validation Secret' that forces the council to stop stalling and start processing your application today."
+> "In this video I'm going to show you exactly how to track and protect your planning application from day one, so you can get your approval without the council delays costing you months of your life — even if you've never dealt with planning before."
 
 **Phase 3 (Plan):**
-> "There are two things I want you to watch for: the specific document that 90% of people forget to include, and the one email template that ends the back-and-forth forever. That's it. That's basically it. Let's get into it."
+> "I'm going to break it down into three parts — how the process actually works, the three documents that prevent most delays, and what to do if it goes wrong."
+
+*(The ===BODY=== must then be structured around those three parts, each signposted. The ===PAYOFF=== must deliver the promise — the viewer can now track and protect their application — and must close the loop on the family from the opening.)*
 
 ---
 
 ## Structural Notes
 
-- The PPP opening covers approximately the first 60–90 seconds of the video.
-- The vignettes in Phase 1 should be drawn from real situations — client call types, avatar fears, real project outcomes.
-- The "realisation" in The Badge should directly set up the video's core argument.
-- The "one secret/conversation/framework" in Phase 2 must be delivered in the video body (no Hook-Delivery Gap).
-- The 2–3 watch-fors in Phase 3 should correspond to real turning points in the ===BODY=== section.
-- The ===BODY=== begins immediately after "Let's get into it."
+- The PPP opening is written as spoken dialogue — no bullet points, no headers in the script itself
+- The three Body parts should each be introduced with a natural spoken signpost ("Let's start with part one — how the process actually works.")
+- The Payoff must explicitly reference the Promise outcome before moving to the CTA
+- The family story from Phase 1 is powerful if resolved in the Payoff — "That family I mentioned at the start? Here's what happened when they did this."

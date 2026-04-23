@@ -101,41 +101,38 @@ Every script must be built on a narrative architecture. Information alone does n
 ## YOUTUBE LONG-FORM FRAMEWORK (applies when Platform = YouTube)
 
 ### PPP HOOK RULE — MANDATORY (replaces separate Hook + Intro for long-form)
-===HOOK=== for YouTube long-form contains the complete PPP opening — all three phases, spoken aloud, covering the first ~90 seconds of the video.
+===HOOK=== for YouTube long-form contains the complete PPP opening — all three phases, spoken aloud, covering the first ~60–90 seconds of the video.
 
-**Five verbatim phrases that must appear exactly — do not paraphrase:**
-1. Transition: "They all think their situation is unique — it isn't."
-2. Badge: "My name's Adam, and after 20 years in this game, taking 40 of these calls a week and helping over 4,000 families fix their homes, I've realised..."
-3. Promise opens with: "Ultimately"
-4. Analogy bridge: uses "like" once as tonal softener ("It's like...")
-5. Close: "That's it. That's basically it. Let's get into it."
+**Phase 1 — Proof (one specific story + badge)**
+Open with ONE real, specific family story. Not a list of problems — one situation, one moment, one concrete detail.
+Template: "Last [time period], I spoke to a family who [specific problem or result]. My name's Adam, owner of Diogel Architecture, I speak to 40 homeowners a week, and every year we help over 200 families through [project type]."
+Rules: "Last [time period]" is the mandatory opener. The badge line structure is fixed — do not rearrange. Move directly into Phase 2 with no transition line between them.
 
-**Phase 1 — Proof (The Mess + The Badge)**
-3–4 gritty, specific vignettes of the problem. Each must feel real: a real number, a real situation type, a real moment — not generic descriptions.
-Then the transition (verbatim). Then the badge (verbatim) with the core realisation of this video's argument.
+**Phase 2 — Promise (what this video delivers)**
+Template: "In this video I'm going to show you exactly [what/how — be concrete], so you can [dream outcome] — even if [the viewer's main objection or blocker]."
+Rules: "In this video I'm going to show you exactly" is the fixed opener — do not paraphrase. The "even if" objection must be the real blocker the viewer believes disqualifies them. This Promise is a contract — it must be delivered in ===PAYOFF===.
 
-**Phase 2 — Promise (The Gear-Shift)**
-Opens with "Ultimately" — no exceptions, no alternatives.
-Names ONE specific thing this video delivers (a secret, a document, a conversation, a framework).
-Includes one "It's like..." domestic analogy. Optimistic in direction, honest about difficulty.
+**Phase 3 — Plan (three parts that ARE the Body structure)**
+Template: "I'm going to break it down into three parts — [Part 1], [Part 2], and [Part 3]."
+Rules: Exactly three parts. Each part name must be specific. These three parts are the structural headings of ===BODY=== — the body must be organised around them and each must be verbally signposted in the script. The ===BODY=== begins immediately after this line.
 
-**Phase 3 — Plan (The Roadmap)**
-2–3 specific watch-fors: a document, a template, a number, a moment — never vague "key points."
-Ends with the verbatim close: "That's it. That's basically it. Let's get into it."
-The ===BODY=== begins immediately after this phrase.
+**Continuity Contract — non-negotiable:**
+- The three Plan parts MUST be the structure of ===BODY===, signposted in spoken dialogue
+- The Promise outcome MUST be explicitly delivered in ===PAYOFF===
+- The "even if" objection MUST be directly addressed in one Body part
+- The family story from Phase 1 SHOULD be closed in ===PAYOFF=== ("That family I mentioned...")
 
 Do not include a separate ===INTRO=== section for long-form. PPP is the intro.
 
 ### BODY RULE
-Every 60–90 seconds of script content in ===BODY===, insert a pattern interrupt.
+===BODY=== is organised around the three parts named in Phase 3 of the PPP. Each part is introduced with a natural spoken signpost. Every 60–90 seconds of script content, insert a pattern interrupt.
 Format each interrupt as: [INTERRUPT: Camera Angle Change — tighter frame on plans]
 Valid types: Camera Angle Change | B-Roll | Vocal Dynamics | Environmental Change | Direct Question
 The interrupt must change the sensory register — not just the topic.
 Write the full spoken script — not bullet points, not summaries.
 
 ### PAYOFF RULE
-===PAYOFF=== delivers on every promise made in ===INTRO===. It answers the belief challenge.
-It closes all open loops. It ends with a clean beat of resolution before the CTA.
+===PAYOFF=== explicitly delivers on the Promise from Phase 2. It must name the dream outcome and confirm the viewer now has what they need to achieve it. If the family story from Phase 1 was left open, close it here. End with a clean beat of resolution before the CTA.
 Never trail into ===YOUTUBE CTA=== without a completed thought.
 
 ### YOUTUBE CTA RULE
@@ -157,7 +154,7 @@ These go in the YouTube description field.
 
 ### WORD COUNT RULE (long-form)
 ===BODY=== is the longest section. It must reach the word count stated in the brief.
-If the combined Hook + Intro + Body + Payoff falls short, expand ===BODY=== only.
+If the combined Hook + Body + Payoff falls short, expand ===BODY=== only.
 Never pad with repetition. Expand by adding a new angle, example, or interrupt cycle.
 `;
 
