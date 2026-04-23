@@ -171,20 +171,24 @@ function loadMasterPrompt(): string {
     base = `You are Adam Mokhtar's personal content strategist and scriptwriter for Diogel Architecture and the RePlanIt brand. Generate short-form video scripts for UK home renovation content. Use UK English. Grade 3 reading level. No AI language. Hooks must stop the scroll in 2 seconds.`;
   }
 
-  // Load all .md files from data/knowledge/ — any file added to that directory is auto-included
+  // Load all .md files from data/knowledge/ recursively — any file in any subdirectory is auto-included
   let knowledgeBlock = "";
-  try {
-    const knowledgeDir = path.join(process.cwd(), "data", "knowledge");
-    const files = fs.readdirSync(knowledgeDir)
-      .filter((f) => f.endsWith(".md"))
-      .sort();
-    for (const file of files) {
-      const content = fs.readFileSync(path.join(knowledgeDir, file), "utf-8");
-      knowledgeBlock += `\n\n${content}`;
+  function loadKnowledgeDir(dir: string): void {
+    try {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          loadKnowledgeDir(fullPath);
+        } else if (entry.name.endsWith(".md")) {
+          knowledgeBlock += `\n\n${fs.readFileSync(fullPath, "utf-8")}`;
+        }
+      }
+    } catch {
+      // directory doesn't exist or can't be read — skip silently
     }
-  } catch {
-    // No knowledge directory — skip silently
   }
+  loadKnowledgeDir(path.join(process.cwd(), "data", "knowledge"));
 
   return base + knowledgeBlock + ADDITIONS;
 }

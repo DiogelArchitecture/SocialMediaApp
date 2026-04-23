@@ -103,20 +103,38 @@ export function writePatterns(platform: Platform, niche: string, data: PatternDa
   }
 }
 
-export function listAllPatterns(): Array<{ platform: Platform; niche: string; data: PatternData }> {
-  const results = [];
+// Ordered longest-first so greedy prefix matching picks the right platform slug
+const PLATFORM_SLUG_MAP: Array<[string, Platform]> = [
+  ["instagram-reels",  "Instagram Reels"],
+  ["youtube-shorts",   "YouTube Shorts"],
+  ["facebook-reels",   "Facebook Reels"],
+  ["tiktok",           "TikTok"],
+  ["youtube",          "YouTube"],
+];
 
-  // Always read from committed files
+function slugToPlatform(fileBaseName: string): { platform: Platform; nicheSlug: string } | null {
+  for (const [prefix, platform] of PLATFORM_SLUG_MAP) {
+    if (fileBaseName.startsWith(prefix + "-") || fileBaseName === prefix) {
+      const nicheSlug = fileBaseName.slice(prefix.length).replace(/^-/, "");
+      return { platform, nicheSlug };
+    }
+  }
+  return null;
+}
+
+function readPatternsFromDir(dir: string, results: Array<{ platform: Platform; niche: string; data: PatternData }>): void {
   try {
-    const files = fs.readdirSync(PATTERNS_DIR_READ).filter((f) => f.endsWith(".json"));
+    const files = fs.readdirSync(dir).filter((f) => f.endsWith(".json") && f !== "seed-patterns.json");
     for (const file of files) {
       try {
-        const raw = fs.readFileSync(path.join(PATTERNS_DIR_READ, file), "utf-8");
+        const raw = fs.readFileSync(path.join(dir, file), "utf-8");
         const data = JSON.parse(raw) as PatternData;
-        const [platformSlug, ...nicheParts] = file.replace(".json", "").split("-");
-        const platform = slugToPlatform(platformSlug) ?? "TikTok";
-        const niche = nicheParts.join(" ");
-        results.push({ platform, niche, data });
+        const parsed = slugToPlatform(file.replace(".json", ""));
+        if (!parsed) continue;
+        const niche = parsed.nicheSlug.replace(/-/g, " ").trim() || "home renovation";
+        if (!results.some((r) => r.platform === parsed.platform && r.niche === niche)) {
+          results.push({ platform: parsed.platform, niche, data });
+        }
       } catch {
         // skip corrupt files
       }
@@ -124,19 +142,20 @@ export function listAllPatterns(): Array<{ platform: Platform; niche: string; da
   } catch {
     // directory may not exist yet
   }
-
-  return results;
 }
 
-function slugToPlatform(slug: string): Platform | null {
-  const map: Record<string, Platform> = {
-    tiktok:           "TikTok",
-    instagram:        "Instagram Reels",
-    "youtube-shorts": "YouTube Shorts",
-    youtube:          "YouTube",
-    facebook:         "Facebook Reels",
-  };
-  return map[slug] ?? null;
+export function listAllPatterns(): Array<{ platform: Platform; niche: string; data: PatternData }> {
+  const results: Array<{ platform: Platform; niche: string; data: PatternData }> = [];
+
+  // Committed patterns
+  readPatternsFromDir(PATTERNS_DIR_READ, results);
+
+  // Live-scraped patterns in /tmp (Vercel) — added after committed so they take priority on dupes
+  if (process.env.VERCEL && PATTERNS_DIR_WRITE !== PATTERNS_DIR_READ) {
+    readPatternsFromDir(PATTERNS_DIR_WRITE, results);
+  }
+
+  return results;
 }
 
 export function readFormats(): FormatEntry[] {

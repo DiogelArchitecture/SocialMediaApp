@@ -35,10 +35,11 @@ export default function OutputPanel({
   const panelRef = useRef<HTMLDivElement>(null);
   const parsed = parseStreamingOutput(rawOutput);
 
-  // Scroll into view when generation kicks off
+  // Scroll into view and reset saved badge when generation kicks off
   useEffect(() => {
     if (isGenerating) {
       panelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setSaved(false);
     }
   }, [isGenerating]);
   const sectionOrder = platform && isLongFormPlatform(platform) ? SECTION_ORDER_LONGFORM : SECTION_ORDER;
@@ -82,7 +83,8 @@ export default function OutputPanel({
 
   async function handleCopyMarkdown() {
     await navigator.clipboard.writeText(buildMarkdown());
-    // Re-use copiedAll state briefly to show feedback on this button
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 2000);
   }
 
   function handleExportTxt() {

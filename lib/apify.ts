@@ -1,4 +1,3 @@
-import { ApifyClient } from "apify-client";
 import fs from "fs";
 import path from "path";
 import type { Platform } from "./build-prompt";
@@ -105,8 +104,8 @@ const NICHE_SEARCH_TERM: Record<Platform, string> = {
 function buildSearchTerm(platform: Platform, keyword?: string): string {
   if (!keyword || !keyword.trim()) return NICHE_SEARCH_TERM[platform];
   const base = keyword.trim().toLowerCase();
-  // Instagram doesn't support spaces in hashtags
-  if (platform === "Instagram Reels") return base.replace(/\s+/g, "") + "UKrenovation";
+  // Instagram uses hashtag-style searches — strip spaces, keep the topic clean
+  if (platform === "Instagram Reels") return base.replace(/\s+/g, "");
   return `${base} UK home renovation`;
 }
 
@@ -239,18 +238,16 @@ export async function fetchTranscript(url: string): Promise<{
   const token = process.env.APIFY_API_TOKEN;
   if (!token) throw new Error("APIFY_API_TOKEN not set");
 
-  const client = new ApifyClient({ token });
-
   const platform = detectPlatformFromUrl(url);
   const actorId = ACTOR_IDS[platform];
-
   const input = buildTranscriptInput(platform, url);
-  const run = await client.actor(actorId).call(input);
-  const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: 1 });
+
+  // Use the sync endpoint — avoids the polling loop that gets killed by Vercel timeouts
+  const items = await runActorSync(actorId, input, token, ACTOR_TIMEOUT_SECS);
 
   if (!items.length) throw new Error("No data returned from Apify");
 
-  const item = items[0] as Record<string, unknown>;
+  const item = items[0];
   return {
     transcript: String(item.transcript || item.subtitles || item.description || item.text || ""),
     views: Number(item.views || item.playCount || item.viewCount || 0),

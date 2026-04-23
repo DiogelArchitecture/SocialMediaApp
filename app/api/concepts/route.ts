@@ -5,6 +5,7 @@ import type { Platform, AnyDuration, Audience, Tone, PatternData } from "@/lib/b
 import { isLongFormPlatform } from "@/lib/build-prompt";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 interface SavedIdea {
   id: string;

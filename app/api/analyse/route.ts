@@ -34,6 +34,19 @@ export async function POST(request: NextRequest) {
 
     const userPrompt = buildAnalysePrompt(transcriptData);
     const apiKey = (process.env.ANTHROPIC_API_KEY || "").replace(/[\u2013\u2014\u2212]/g, "-").trim();
+    if (!apiKey) {
+      const enc = new TextEncoder();
+      return new Response(
+        new ReadableStream({
+          start(c) {
+            c.enqueue(enc.encode(`data: ${JSON.stringify({ error: "ANTHROPIC_API_KEY is not set." })}\n\n`));
+            c.enqueue(enc.encode("data: [DONE]\n\n"));
+            c.close();
+          },
+        }),
+        { headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" } }
+      );
+    }
     const client = new Anthropic({ apiKey });
 
     const stream = await client.messages.stream({
@@ -60,7 +73,10 @@ export async function POST(request: NextRequest) {
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (err) {
-          controller.error(err);
+          const msg = err instanceof Error ? err.message : "Analysis stream failed";
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`));
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
         }
       },
     });
