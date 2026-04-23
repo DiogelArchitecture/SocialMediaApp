@@ -131,9 +131,15 @@ Valid types: Camera Angle Change | B-Roll | Vocal Dynamics | Environmental Chang
 The interrupt must change the sensory register — not just the topic.
 Write the full spoken script — not bullet points, not summaries.
 
+### MID-ROLL CTA RULE
+When a CTA phrase is provided, it is delivered TWICE in the long-form video:
+1. Mid-roll — after Part 2 and before Part 3 of the Body, spoken naturally with a one-sentence lead-in
+2. This CTA phrase is separate from the ===YOUTUBE CTA=== section, which handles subscribe/comment/next video
+
 ### PAYOFF RULE
-===PAYOFF=== explicitly delivers on the Promise from Phase 2. It must name the dream outcome and confirm the viewer now has what they need to achieve it. If the family story from Phase 1 was left open, close it here. End with a clean beat of resolution before the CTA.
-Never trail into ===YOUTUBE CTA=== without a completed thought.
+===PAYOFF=== is short — ~80 words. Close the family story from the PPP opening ("That family I mentioned at the start..."). Deliver on the Promise from Phase 2 in 1–2 sentences. No recap of body points.
+End with this exact phrase on its own line: "Simple. Smart. Sorted."
+Never use "That's it. That's basically it." in long-form.
 
 ### YOUTUBE CTA RULE
 ===YOUTUBE CTA=== contains three elements on separate lines:

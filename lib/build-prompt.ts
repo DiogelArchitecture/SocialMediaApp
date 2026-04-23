@@ -203,7 +203,7 @@ export function buildUserPrompt(params: BuildPromptParams): string {
 // ─── Long-form prompt (YouTube) ───────────────────────────────────────────────
 
 export function buildLongFormPrompt(params: BuildPromptParams): string {
-  const { topic, location, audience, tone, toggles, mode, selectedConcept, duration, context } = params;
+  const { topic, location, audience, tone, toggles, mode, selectedConcept, duration, context, ctaOverride } = params;
 
   const dur = duration as LongFormDuration;
   const wordCount = LONGFORM_WORD_COUNT[dur] ?? 1500;
@@ -259,10 +259,14 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
   prompt += `Each interrupt must be formatted as: [INTERRUPT: Type — specific action]\n`;
   prompt += `Valid interrupt types: Camera Angle Change | B-Roll | Vocal Dynamics | Environmental Change | Direct Question\n`;
   prompt += `The interrupt must change the sensory register — not just the topic.\n`;
-  prompt += `Write the full spoken script here, not bullet points or summaries.\n\n`;
+  prompt += `Write the full spoken script here, not bullet points or summaries.\n`;
+  if (ctaOverride?.phrase) {
+    prompt += `\nMID-ROLL CTA — after Part 2 and before Part 3, deliver this exact CTA phrase spoken naturally:\n"${ctaOverride.phrase}"\nIt should feel like a natural breath between parts — not an ad break. One sentence of lead-in, then the phrase, then Part 3 begins.\n`;
+  }
+  prompt += `\n`;
 
   prompt += `===PAYOFF===\n`;
-  prompt += `Final ~150 words. MUST explicitly deliver on the Promise from Phase 2 — name the dream outcome and confirm the viewer now has what they need to achieve it. If the family story from Phase 1 was left open, close it here ("That family I mentioned at the start..."). Close all open loops. End with a clean beat of resolution — never trail directly into the CTA without a completed thought.\n\n`;
+  prompt += `Final ~80 words. Close the loop on the family story from the opening ("That family I mentioned at the start..."). Deliver the Promise outcome in 1–2 sentences — confirm the viewer now has what they came for. Keep it tight. No recap of body points. End with this exact line on its own: "Simple. Smart. Sorted."\n\n`;
 
   prompt += `===YOUTUBE CTA===\n`;
   prompt += `Three elements on separate lines:\n`;
