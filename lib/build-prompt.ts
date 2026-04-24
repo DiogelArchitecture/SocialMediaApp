@@ -128,6 +128,56 @@ function buildContextBlock(context: string | undefined): string {
   return `CONTEXTUAL INTELLIGENCE — provided by Adam / Diogel team:\n\n${context.trim()}\n\nUse the intelligence above to ground the script in real situations, real client language, and real fears. Mirror verbatim phrases where they strengthen the hook or script. Do not invent situations that contradict the above.\n\n`;
 }
 
+// ─── Tone instructions ────────────────────────────────────────────────────────
+
+function buildToneBlock(tone: Tone | undefined): string {
+  if (!tone) return "";
+  switch (tone) {
+    case "Comedic":
+      return `COMEDIC TONE — apply the comedy framework throughout the script:
+- Rule of threes: establish a pattern with two items, break it with a funnier, more specific third
+- Self-deprecation: the victim of the joke is the system, the industry, or Adam — never the homeowner
+- Specificity is funnier: "£43,217" lands harder than "a lot of money" — use exact numbers and precise details
+- Escalating absurdity: lists get progressively more specific and absurd (not just bad → worse → worst)
+- Show the joke, don't explain it: describe the actual wait, the actual letter, the actual phone call — let the absurdity speak
+- Purposeful misinterpretation: set up an expectation, deliver something adjacent and unexpected
+- Pause beats: use em dashes (—) to mark the natural beat before a punchline lands
+- Comedy serves the lesson — never sacrifice the teaching moment for the laugh\n\n`;
+    case "High energy":
+      return `HIGH ENERGY TONE — short punchy sentences. Frequent pattern interrupts. Every statement lands with conviction. No hedging. Use imperative verbs. Build to peaks rather than maintaining one flat level. Vary sentence length sharply: three short, then one long that earns its space.\n\n`;
+    case "Calm authority":
+      return `CALM AUTHORITY TONE — measured pace. Long sentences that explore, short sentences that anchor. Confidence comes from precision, not volume. State hard truths plainly without apology. No exclamation points. No hype. The viewer should feel they are talking to the most knowledgeable person in the room — who has no need to prove it.\n\n`;
+    case "Urgent":
+      return `URGENT TONE — every line creates forward motion. Something is at stake and the clock is running. Short sentences dominate. Avoid subordinate clauses that slow pace. Use "right now," "before," "while you still can" — only where genuinely true, never as manipulation.\n\n`;
+    default:
+      return "";
+  }
+}
+
+// ─── Storytelling framework enforcement ───────────────────────────────────────
+
+function buildShortFormStorytellingBlock(): string {
+  return `STORYTELLING FRAMEWORK — apply the CARD model in this order:
+C (Context): 1–2 sentences. Ground the viewer in a specific situation — real setting, real person type, real moment. Not generic.
+A (Adversity): The conflict. Surface all three levels — External (the practical problem), Internal (the fear underneath), Philosophical (why it feels wrong or unfair).
+R (Resolution): What changes or what the viewer now knows. Only state a resolution if it is known — never fabricate one. If unknown, the teaching moment is the resolution.
+D (Takeaway): One clean sentence. The transferable lesson the viewer keeps.
+
+The hook is the open loop. The payoff closes it. Never leave a promise in the hook undelivered.
+Relive — do not report. Not "costs spiralled" — relive the phone call, the silence, the number on the screen.\n\n`;
+}
+
+function buildLongFormBodyStorytellingBlock(): string {
+  return `BODY ARC — apply the SB7 framework across the three parts:
+The viewer is the hero. Adam is the guide — never the hero.
+- Establish the External problem (the task they are trying to complete)
+- Surface the Internal problem (the fear, frustration, or self-doubt underneath)
+- Name the Philosophical problem (why the situation feels unfair or wrong)
+- The three Body parts move the viewer from awareness of the problem → understanding of the solution → confidence to act
+Use the Pixar causality rule: each part leads to the next. Avoid "and then... and then..." — use "because of that..." to create forward pull.
+Relive — do not report. Use exact dialogue, specific numbers, and real moments.\n\n`;
+}
+
 // ─── Short-form prompt ────────────────────────────────────────────────────────
 
 export function buildUserPrompt(params: BuildPromptParams): string {
@@ -150,6 +200,8 @@ export function buildUserPrompt(params: BuildPromptParams): string {
   }
 
   prompt += "\n";
+  prompt += buildShortFormStorytellingBlock();
+  if (mode === "forge" && tone) prompt += buildToneBlock(tone);
 
   if (selectedConcept) {
     prompt += `SELECTED CONCEPT — use this as the creative backbone for the script:\n`;
@@ -224,6 +276,8 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
   }
 
   prompt += "\n";
+  prompt += buildLongFormBodyStorytellingBlock();
+  if (mode === "forge" && tone) prompt += buildToneBlock(tone);
 
   if (selectedConcept) {
     prompt += `SELECTED CONCEPT — use as the creative backbone:\n`;
