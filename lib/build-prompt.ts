@@ -134,15 +134,38 @@ function buildToneBlock(tone: Tone | undefined): string {
   if (!tone) return "";
   switch (tone) {
     case "Comedic":
-      return `COMEDIC TONE — apply the comedy framework throughout the script:
-- Rule of threes: establish a pattern with two items, break it with a funnier, more specific third
-- Self-deprecation: the victim of the joke is the system, the industry, or Adam — never the homeowner
-- Specificity is funnier: "£43,217" lands harder than "a lot of money" — use exact numbers and precise details
-- Escalating absurdity: lists get progressively more specific and absurd (not just bad → worse → worst)
-- Show the joke, don't explain it: describe the actual wait, the actual letter, the actual phone call — let the absurdity speak
-- Purposeful misinterpretation: set up an expectation, deliver something adjacent and unexpected
-- Pause beats: use em dashes (—) to mark the natural beat before a punchline lands
-- Comedy serves the lesson — never sacrifice the teaching moment for the laugh\n\n`;
+      return `COMEDIC TONE — THIS CHANGES HOW THE SCRIPT IS WRITTEN
+
+Adam's TOV is simultaneously serious and funny — the knowledge file states explicitly: "Humour is the mechanism for delivering serious points faster and with more emotional adhesion." For this script, lean hard into that dimension. The comedy IS the argument. Not decoration on top of it.
+
+APPLY THESE TECHNIQUES WITH RENOVATION-SPECIFIC EXAMPLES:
+
+1. RULE OF THREES — two straight items establish the pattern, the third breaks it with specificity and absurdity. The punchline always goes last.
+   ✗ "It takes time, costs money, and causes stress."
+   ✓ "It takes eight months, costs £12,000, and makes you genuinely consider a caravan."
+
+2. SPECIFICITY IS THE JOKE — vague is never funny. Exact numbers and precise details are.
+   ✗ "The council asks for a lot of documents."
+   ✓ "The council asked for the original planning permission from 1987. The client wasn't born in 1987."
+
+3. DEADPAN THE ABSURD — state the genuinely ridiculous as if it is completely normal. Never point at the joke.
+   ✗ "Believe it or not, this actually happens!"
+   ✓ "Six weeks became seven months. Nobody mentioned this would happen. Everyone was very surprised."
+
+4. SELF-DEPRECATION — the industry, the system, or Adam takes the hit. Never the homeowner.
+   ✓ "I have been doing this for twenty years. The planning system still surprises me. Not in good ways."
+
+5. PAUSE BEAT — place an em dash (—) before the punchline to create the spoken pause.
+   ✓ "They waited nine months for planning permission — for a conservatory."
+   ✓ "The drawings were revised seventeen times — by the client, not us."
+
+6. ESCALATING LIST — each item gets more specific and more absurd. Not just bad → worse → worst.
+   ✓ "One call. One question. Six forms. Three departments. One councillor on holiday. No answer."
+
+7. ANTI-CLIMACTIC RESOLUTION — set up something that sounds like it will be dramatic, end with something mundane.
+   ✓ "After nine months of back-and-forth, two site visits, and one strongly-worded letter — they approved the window."
+
+The serious lesson still lands. The comedy is how it gets there. Never explain the joke after it lands.\n\n`;
     case "High energy":
       return `HIGH ENERGY TONE — short punchy sentences. Frequent pattern interrupts. Every statement lands with conviction. No hedging. Use imperative verbs. Build to peaks rather than maintaining one flat level. Vary sentence length sharply: three short, then one long that earns its space.\n\n`;
     case "Calm authority":
