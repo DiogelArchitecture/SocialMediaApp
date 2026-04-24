@@ -20,6 +20,18 @@ The customer intelligence in this prompt is BACKGROUND CONTEXT — it shapes ton
 Never mention Karen, Mark, or any avatar name in the script.
 Never describe the audience in the script. Speak TO the viewer as "you" — never ABOUT them.
 
+## NO NAMES RULE — MANDATORY
+Never give any client, homeowner, or family member a name in the script.
+Not "Sarah and Mark." Not "the Johnsons." Not any invented name.
+Always refer to them as: "one of our clients", "they", "this family", "the homeowner", "someone I spoke to."
+Adam cannot say invented names on camera. This rule has no exceptions.
+
+## NO FABRICATION RULE — MANDATORY
+Never invent a resolution to a client story unless the resolution was explicitly provided in the context or brief.
+The only safe ending for any client situation is the teaching moment — what the situation illustrates about the topic.
+Do not write "they got planning permission in the end", "they found a better architect", "it all worked out" unless you know this happened.
+Leave the outcome open if unknown. The lesson is enough.
+
 ## PRIORITY ORDER (when constraints conflict)
 1. Hook quality
 2. Clarity of the core idea

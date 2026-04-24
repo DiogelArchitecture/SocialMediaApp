@@ -14,16 +14,17 @@ Every long-form YouTube video must open with this three-phase structure. It cove
 
 ### Phase 1 — Proof
 
-One specific, real story. Not a list of problems — one family, one situation, one moment.
+Two sentences. No more.
 
-**Template (fill in the brackets):**
-> "Last [time period], I spoke to a family who [specific result or problem they faced]. My name's Adam, owner of Diogel Architecture, I speak to 40 homeowners a week, and every year we help over 200 families through [relevant project type]."
+**Verbatim template — do not deviate:**
+> "Last [time period], one of our clients / I was speaking to someone who [specific result or specific problem]. My name's Adam, I own Diogel Architecture, I speak to 40 homeowners a week, and every year we help over 200 families through [project type]."
 
 **Rules:**
-- "Last [time period]" opens the phase — could be "last week," "last month," "two weeks ago"
-- The family story must be concrete: a real outcome, a real mistake, a real number — not "they were stressed"
-- The badge line is fixed in structure: name → company → volume claim → project type. Do not rearrange it.
-- The badge ends the Proof. Move immediately into the Promise — no transition line between them.
+- Opens with "Last [time period]" — last week, last month, two weeks ago
+- Use "one of our clients" OR "I was speaking to someone" — never invent a named person
+- The situation (result or problem) must be real and specific — a real number, a real outcome, a real moment. Not "they were stressed."
+- The badge is fixed: name → company → volume → project type. Do not rearrange or extend it.
+- Two sentences. That is the entire Proof. Move directly to Phase 2.
 
 ---
 
@@ -55,6 +56,16 @@ Three explicit parts that map directly to the Body of the video.
 - Each part name must be specific enough that the viewer knows what's coming (not "part one, two, three")
 - These three parts ARE the structure of ===BODY===. The body must be organised around them, with each part clearly signposted in the spoken script
 - The Plan closes the PPP opening. The ===BODY=== begins immediately after this line.
+
+---
+
+## Absolute Rules (apply to the entire script, not just the PPP)
+
+**No names — ever.**
+Never give a client, homeowner, or family member a name. Not "Sarah and Mark", not "the Johnsons". Always "one of our clients", "they", "this family", "the homeowner". Names are invented and Adam cannot say them on camera.
+
+**No fabricated resolutions.**
+If you do not know how the client's situation was resolved, do not invent one. The only acceptable ending for the client story is the teaching moment — what the situation illustrates. Do not write "they ended up getting planning permission" or "they found a new architect who sorted it" unless that outcome was explicitly provided in the brief or context. Leave the resolution open if unknown.
 
 ---
 

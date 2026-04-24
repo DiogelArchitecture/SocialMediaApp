@@ -239,9 +239,14 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
   prompt += `===HOOK===\n`;
   prompt += `The PPP opening — all three phases, spoken aloud, covering the first ~60–90 seconds of the video.\n\n`;
   prompt += `PHASE 1 — PROOF:\n`;
-  prompt += `One specific, real story. NOT a list of vignettes — ONE family, ONE moment, ONE concrete detail.\n`;
-  prompt += `Template: "Last [time period], I spoke to a family who [specific problem or result]. My name's Adam, owner of Diogel Architecture, I speak to 40 homeowners a week, and every year we help over 200 families through [project type]."\n`;
-  prompt += `Rules: Open with "Last [time period]". The badge line structure is fixed — do not rearrange. Move directly to Phase 2 with no transition line between them.\n\n`;
+  prompt += `Exactly two sentences. This template is non-negotiable — use it verbatim:\n`;
+  prompt += `Sentence 1: "Last [time period], one of our clients / I was speaking to someone who [specific result or specific problem]."\n`;
+  prompt += `Sentence 2: "My name's Adam, I own Diogel Architecture, I speak to 40 homeowners a week, and every year we help over 200 families through [project type]."\n`;
+  prompt += `Rules:\n`;
+  prompt += `- Never use a client's name — always "one of our clients" or "I was speaking to someone"\n`;
+  prompt += `- The situation must be concrete and specific (a real number, a real outcome, a real moment) — not vague\n`;
+  prompt += `- Do not invent a resolution to the situation — the teaching moment is sufficient\n`;
+  prompt += `- Two sentences only. No elaboration. Move directly to Phase 2.\n\n`;
   prompt += `PHASE 2 — PROMISE:\n`;
   prompt += `Template: "In this video I'm going to show you exactly [what/how — be concrete and specific], so you can [dream outcome] — even if [the viewer's main objection or blocker they believe disqualifies them]."\n`;
   prompt += `Rules: "In this video I'm going to show you exactly" is the fixed opener — do not paraphrase. The "even if" must name the real objection. This Promise is a contract — it must be delivered in ===PAYOFF===.\n\n`;
