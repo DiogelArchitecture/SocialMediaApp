@@ -180,10 +180,10 @@ The serious lesson still lands. The comedy is how it gets there. Never explain t
 // ─── Storytelling framework enforcement ───────────────────────────────────────
 
 function buildShortFormStorytellingBlock(): string {
-  return `STORYTELLING FRAMEWORK — apply the CARD model in this order:
-C (Context): 1–2 sentences. Ground the viewer in a specific situation — real setting, real person type, real moment. Not generic.
-A (Adversity): The conflict. Surface all three levels — External (the practical problem), Internal (the fear underneath), Philosophical (why it feels wrong or unfair).
-R (Resolution): What changes or what the viewer now knows. Only state a resolution if it is known — never fabricate one. If unknown, the teaching moment is the resolution.
+  return `STORYTELLING FRAMEWORK — apply the CARD model:
+C (Context): 1–2 sentences. Ground the viewer in a specific situation — real setting, real person type, real moment. Use the Mirror technique: open with a feeling they are currently experiencing, not a fact. Make them feel seen first.
+A (Adversity): The conflict — all three levels: External (the practical problem), Internal (the fear underneath), Philosophical (why it feels wrong or unfair). Where relevant, use the Misplaced Blame reframe: the problem is not them, it is the building/system asking too much of them.
+R (Resolution): What changes or what the viewer now knows. Only state a resolution if known — never fabricate one. If unknown, the teaching moment is the resolution.
 D (Takeaway): One clean sentence. The transferable lesson the viewer keeps.
 
 The hook is the open loop. The payoff closes it. Never leave a promise in the hook undelivered.
@@ -191,14 +191,21 @@ Relive — do not report. Not "costs spiralled" — relive the phone call, the s
 }
 
 function buildLongFormBodyStorytellingBlock(): string {
-  return `BODY ARC — apply the SB7 framework across the three parts:
-The viewer is the hero. Adam is the guide — never the hero.
-- Establish the External problem (the task they are trying to complete)
-- Surface the Internal problem (the fear, frustration, or self-doubt underneath)
-- Name the Philosophical problem (why the situation feels unfair or wrong)
-- The three Body parts move the viewer from awareness of the problem → understanding of the solution → confidence to act
-Use the Pixar causality rule: each part leads to the next. Avoid "and then... and then..." — use "because of that..." to create forward pull.
-Relive — do not report. Use exact dialogue, specific numbers, and real moments.\n\n`;
+  return `BODY ARC — apply the Mirror Framework in this order (loaded in full in the knowledge files):
+
+Stage 1 — THE MIRROR: Open with a feeling the viewer is currently experiencing. Not credentials, not statistics — a specific ordinary moment they recognise from their own life. Make them feel seen before you say anything useful. "We're very hard on ourselves, aren't we?" Test: a viewer alone on their sofa should feel spoken to directly.
+
+Stage 2 — THE MISPLACED BLAME: Introduce a tactile, everyday analogy that removes guilt from the homeowner and places it on the building. They are not failing — they are using the wrong tool. The house was built for a different century's life. Use a physical, slightly absurd analogy (the shoes that fit someone else, the pot designed for a different meal, the fork and the soup). The viewer should exhale here.
+
+Stage 3 — THE HISTORICAL GAP: One paragraph of expertise that explains WHY the mismatch exists. Victorian/Edwardian houses built for servants, coal fires, separate rooms, children seen not heard. Contrast with 2026 life: working from home, open-plan, connected families, multiple screens. Authority through context, not credentials.
+
+Stage 4 — THE EPIPHANY: Reveal the solution is not what they thought. Square footage is not the cure — flow, sequence, light, and connection are. "You don't need a bigger house. You need a house that recognises who you've become." Stop them from solving the wrong problem. Give this space — do not rush past it.
+
+Stage 5 — THE PROOF: One real client story. One specific change. One emotional result. Not a list — one example. "One of our clients..." The change should be surprisingly small (a corridor, a wall, a window). The result is emotional, not practical ("peace" not "more storage"). No names. No fabricated resolutions.
+
+Stage 6 — THE INVITATION: Soft CTA. Never "book now." An invitation, not a close. "If this is hitting close to home — it might be worth having a conversation." Offer the Build, Wait or Move call as a door opening, not a pitch landing.
+
+These six stages map to the three parts named in Phase 3 of the PPP opening. Each part should be signposted in spoken dialogue.\n\n`;
 }
 
 // ─── Short-form prompt ────────────────────────────────────────────────────────
