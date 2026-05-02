@@ -190,6 +190,31 @@ The hook is the open loop. The payoff closes it. Never leave a promise in the ho
 Relive — do not report. Not "costs spiralled" — relive the phone call, the silence, the number on the screen.\n\n`;
 }
 
+function buildLongFormRulebookBlock(): string {
+  return `YOUTUBE SCRIPTWRITING RULES — MANDATORY FOR THIS SCRIPT (long-form only):
+
+RULE 1 — OBJECTIVE IS BEHAVIOUR CHANGE, NOT ENTERTAINMENT:
+The script must cause the viewer to change one specific behaviour. State what that behaviour is before writing. If a viewer watches and does not act differently, the script has failed. Do not chase broad views — write for the homeowner who is actively considering a project.
+
+RULE 2 — NARROW FOCUS, IDEAL CUSTOMER ONLY:
+Write exclusively for the homeowner considering a UK renovation, extension, or planning project. Do not drift into broad lifestyle content. Every word serves the ideal customer, not a general audience.
+
+RULE 3 — ASSUME NOTHING (COLD VIEWER):
+Every viewer is a stranger. The PPP badge introduces Adam in Phase 1 — do not omit it. Never reference previous videos or assume prior knowledge. Every concept must be self-contained.
+
+RULE 5 — SUBSTANCE OVER FLASH:
+Strong language and clear messaging outperform production effects. Visual directives must use effective production only (text overlays, floor plan diagrams, data charts) — no distracting effects. Clarity over curiosity gaps: the hook must honestly reflect what the video delivers.
+
+RULE 6 — SPCL INFLUENCE FRAMEWORK (weave throughout, not in separate sections):
+- STATUS: Demonstrate control of scarce resources. Use specific numbers — 240+ planning applications per year, 40 homeowners a week, 200+ families helped annually. Numbers, volume, access.
+- POWER: Every actionable point must be genuinely useful. If the viewer follows the advice, they get a real result. No withheld information. No artificial dependency.
+- CREDIBILITY: Use specific data and tangible proof — real project outcomes, real numbers, real planning results. Never "many clients" — always "12 of the last 15 applications." Cannot be claimed, must be demonstrated.
+- LIKENESS: Write in Adam's authentic voice using the TOV guide. His self-interruptions, everyday analogies, directness about difficulty — these are the trust mechanism. No corporate NPC script.
+
+RULE 7 — ONLY SAY WHAT DIOGEL CAN SAY:
+Every script must contain at least one data point, story, or insight that no other YouTube creator could produce. Generic advice any channel could give is a wasted line. Ask: could this have been written by anyone with a Google search? If yes, rewrite it.\n\n`;
+}
+
 function buildLongFormBodyStorytellingBlock(): string {
   return `BODY ARC — apply the Mirror Framework in this order (loaded in full in the knowledge files):
 
@@ -306,6 +331,7 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
   }
 
   prompt += "\n";
+  prompt += buildLongFormRulebookBlock();
   prompt += buildLongFormBodyStorytellingBlock();
   if (mode === "forge" && tone) prompt += buildToneBlock(tone);
 

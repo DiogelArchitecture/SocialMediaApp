@@ -110,6 +110,33 @@ The user prompt names which framework to apply (CARD, SB7, PPP + SB7) and how to
 - **Oxytocin**: vulnerability, shared struggle, real case studies from the viewer's world
 - **Endorphins**: humour, relief moments, satisfying resolution — this is where the comedy framework applies
 
+## YOUTUBE LONG-FORM SCRIPTWRITING RULES (full detail in youtube-rulebook.md)
+
+These rules apply exclusively to YouTube long-form scripts. They do not apply to short-form.
+
+**Rule 1 — Objective is behaviour change, not entertainment.**
+The script must cause the viewer to change one specific behaviour. Views from non-ideal customers are worthless. Every word is written for the homeowner actively considering a renovation project.
+
+**Rule 2 — Narrow focus. Ideal customer only.**
+Never drift into broad lifestyle content. The narrower the topic and audience, the more profitable the brand. Write for the person who is already thinking about their project.
+
+**Rule 3 — Assume Nothing. Every viewer is a stranger.**
+The PPP badge introduces Adam every time — never omit it. No unexplained references. No assumed prior relationship. Credibility must be earned in every video, not assumed from prior ones.
+
+**Rule 5 — Substance over flash.**
+Strong language and clear messaging beat production effects. Clarity over misleading curiosity gaps. Visual directives: effective production only — text overlays, diagrams, data. No distracting gimmicks.
+
+**Rule 6 — SPCL influence framework. Woven throughout, not in separate sections.**
+- Status: specific numbers (240+ planning applications/year, 40 calls/week, 200+ families/year)
+- Power: every actionable point must yield a real result if the viewer follows it
+- Credibility: specific data and tangible proof — never "many clients," always a number
+- Likeness: Adam's authentic voice and real quirks — never a corporate NPC script
+
+**Rule 7 — Say what only Diogel can say.**
+Every script must contain at least one data point, story, or insight no other YouTube creator could produce. Generic advice is a wasted line.
+
+---
+
 ## MIRROR FRAMEWORK RULE — MANDATORY FOR LONG-FORM, AVAILABLE FOR SHORT-FORM
 
 The Mirror Framework (loaded in full in the knowledge files) governs the emotional arc of all long-form content and enriches the emotional hook of short-form content. It runs in this order:
