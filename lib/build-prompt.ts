@@ -36,6 +36,8 @@ export interface Toggles {
   // Long-form (YouTube)
   chapterMarkers: boolean;
   youtubeCta: boolean;
+  // Mode overrides
+  boardGameMode: boolean;
 }
 
 export interface HookSource {
@@ -233,6 +235,28 @@ Stage 6 — THE INVITATION: Soft CTA. Never "book now." An invitation, not a clo
 These six stages map to the three parts named in Phase 3 of the PPP opening. Each part should be signposted in spoken dialogue.\n\n`;
 }
 
+// ─── Board Game Mode prompt block ─────────────────────────────────────────────
+
+function buildBoardGameBlock(duration: AnyDuration): string {
+  const durLabel = duration === "60s" ? "60s" : duration === "30s" ? "30s" : duration;
+  return `BOARD GAME MODE — ACTIVE. This replaces all standard storytelling frameworks for this script.
+
+The Diogel Board Game Framework (full rules loaded in knowledge files) applies. Summary:
+
+STRUCTURE:
+[0:00–0:10] BESPOKE HOOK — Start mid-action on a completely unique, specific strategic blunder. No greeting ("Hello," "Hey guys"). No template phrasing. Fresh scenario every time, tied to this video's exact game mechanic.
+
+[0:10–0:40] GAME MECHANICS — Stay entirely in the board game world. No houses, buildings, extensions, rooms, or any architectural reference. Explain the rulebook, the Game Master's limitations, why this move collapses the player's engine. Geek out. Use: Meeples, tokens, cardboard tiles, wooden resource blocks, map zones, strategic bottlenecks, expansion packs. PROHIBITED: video game refs (Tetris, NPCs, "levelling up"), sports refs (referees, fouls).
+
+[0:40–0:55] HOMEOWNER PIVOT — Snap to real-world homeowner reality. Lead with: "And look, I speak to homeowners every day who are doing exactly this..." OR "And look, I see people making this exact play with their homes all the time." The real-world problem must EXACTLY mirror the board game analogy (hidden card → hidden planning condition; illegal placement → building without permitted development; blocked route → extension that kills light). Focus on Movement, Timeline, Friction — legal issues, chaotic routines, budgeting traps. Leave them educated, not hopeless.
+
+[0:55–${durLabel === "60s" ? "1:00" : "end"}] THE MANTRA — End with exactly: "Simple. Smart. Sorted." Nothing after this. No CTA. No likes/follow/subscribe request. The authority is the sell.
+
+TONE: Grade 3 UK English. Conversational, sharp, authoritative. Adam-isms ("Absurd," "Superb," "Obscene," "Rock'n'roll") only where they surface naturally — never forced. Transition markers ("Look...", "I mean...", "Ultimately...", "Basically...") used naturally.
+
+DO NOT include a CTA of any kind. Override any CTA instructions for this script.\n\n`;
+}
+
 // ─── Short-form prompt ────────────────────────────────────────────────────────
 
 export function buildUserPrompt(params: BuildPromptParams): string {
@@ -255,8 +279,13 @@ export function buildUserPrompt(params: BuildPromptParams): string {
   }
 
   prompt += "\n";
-  prompt += buildShortFormStorytellingBlock();
-  if (mode === "forge" && tone) prompt += buildToneBlock(tone);
+
+  if (toggles.boardGameMode) {
+    prompt += buildBoardGameBlock(duration);
+  } else {
+    prompt += buildShortFormStorytellingBlock();
+    if (mode === "forge" && tone) prompt += buildToneBlock(tone);
+  }
 
   if (selectedConcept) {
     prompt += `SELECTED CONCEPT — use this as the creative backbone for the script:\n`;

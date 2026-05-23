@@ -25,6 +25,7 @@ export interface ConceptRequest {
   patterns?: PatternData | null;
   savedIdeas?: SavedIdea[];
   context?: string;
+  boardGameMode?: boolean;
 }
 
 export interface ScriptConcept {
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = (await request.json()) as ConceptRequest;
-    const { topic, platform, duration, location, selectedHook, audience, tone, patterns, savedIdeas, context } = body;
+    const { topic, platform, duration, location, selectedHook, audience, tone, patterns, savedIdeas, context, boardGameMode } = body;
 
     const intelContext = context?.trim()
       ? `CONTEXTUAL INTELLIGENCE — provided by Adam / Diogel team:\n\n${context.trim()}\n\nUse the intelligence above to ground concepts in real situations, real client language, and real fears. Mirror verbatim client phrases where they would strengthen a hook or premise.\n\n`
@@ -102,6 +103,90 @@ export async function POST(request: NextRequest) {
     }
 
     const isLong = isLongFormPlatform(platform);
+
+    if (boardGameMode) {
+      const boardGamePrompt = `${intelContext}BOARD GAME MODE IS ACTIVE. Generate exactly 3 distinct Board Game Mode script concepts for a ${duration} ${platform} short-form video about: "${topic}"
+
+BOARD GAME MODE RULES — these are absolute and override all standard concept rules:
+
+Each concept hook MUST open mid-action inside a board game scenario. No greetings. No "imagine you're playing..." — drop straight into a specific, visual, bespoke strategic blunder already in motion on the board. Every hook must be completely unique to its specific game mechanic — impossible to recycle.
+
+Hook vocabulary to use: Meeples, tokens, expansion packs, wooden resource blocks, cardboard tiles, map zones, strategic bottlenecks, Game Master, Rulebook, resource piles, turn order, action economy, placement rules.
+Hook vocabulary NEVER to use: Tetris, NPCs, levelling up, respawning, game over screen, referees, fouls, penalties, half-time.
+
+The premise for each concept must describe the 2-phase structure:
+Phase 1 (first 40s) — stays 100% in the board game world: game mechanics, rulebook, why the move collapses the player's engine. Zero mention of houses, extensions, planning permission.
+Phase 2 (final 20s) — snaps to homeowner reality with an exact analogy match (e.g. hidden restriction card → hidden planning condition; illegal piece placement → building without permitted development rights). Ends with "Simple. Smart. Sorted." — no CTA.
+
+Shooting location: ${location}
+
+Return ONLY valid JSON — no markdown, no explanation:
+{
+  "concepts": [
+    {
+      "id": "1",
+      "title": "Short punchy title (4-6 words)",
+      "belief": "The commonly held homeowner belief this board game mechanic exposes (1 sentence)",
+      "hook": "Opening line — verbatim, mid-action board game scenario, 12 words max, no greeting, completely bespoke",
+      "premise": "Phase 1 (0–40s): [specific board game mechanic and collapse]. Phase 2 (40–60s): [exact real-world pivot + 'Simple. Smart. Sorted.' close]",
+      "format": "Board Game Mode — [name the specific game mechanic used e.g. Resource Blockade / Hidden Restriction Card / Illegal Placement / Misread Rulebook / Engine Collapse]",
+      "cta": "soft"
+    }
+  ]
+}
+
+All 3 concepts must use a different game mechanic. All must map exactly to a real UK renovation rule or planning pitfall. The board game analogy connection must be precise — not approximate.`;
+
+      const client = new Anthropic({ apiKey });
+
+      const readableStream = new ReadableStream({
+        async start(controller) {
+          try {
+            const response = await client.messages.create({
+              model: "claude-sonnet-4-6",
+              max_tokens: 2048,
+              system: SYSTEM,
+              messages: [{ role: "user", content: boardGamePrompt }],
+            });
+
+            const raw = response.content[0].type === "text" ? response.content[0].text : "{}";
+            let concepts: ScriptConcept[] = [];
+
+            try {
+              const stripped = raw.replace(/```(?:json)?\n?/g, "").trim();
+              const start = stripped.indexOf("{");
+              const end = stripped.lastIndexOf("}");
+              const jsonStr = start !== -1 && end > start ? stripped.slice(start, end + 1) : stripped;
+              const parsed = JSON.parse(jsonStr);
+              concepts = parsed.concepts ?? [];
+            } catch {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: "Failed to parse board game concepts from Claude response." })}\n\n`));
+              controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+              controller.close();
+              return;
+            }
+
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ concepts })}\n\n`));
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : "Unknown error";
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`));
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          }
+        },
+      });
+
+      return new Response(readableStream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
+    }
+
     const formatNote = isLong
       ? `For YouTube long-form, the "premise" field should outline the 3-phase arc: what the Hook phase challenges, what the Body builds, and what the Payoff delivers. The "format" field should name a long-form format type: Deep Dive / Myth vs Reality / Case Study Walkthrough / Step-by-Step Guide / Common Mistakes + Fix.`
       : `Make the 3 concepts meaningfully different in format and angle.`;

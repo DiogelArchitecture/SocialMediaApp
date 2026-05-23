@@ -47,33 +47,67 @@ export default function ToggleGroup({ toggles, onChange, mode, platform }: Toggl
   });
 
   return (
-    <div>
-      <label className="block text-xs text-[#6B6B72] mb-3 uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>
-        Output Options
-      </label>
-      <div className="space-y-2">
-        {visible.map((def) => (
-          <div
-            key={def.key}
-            className="flex items-center justify-between py-2 border-b border-[#1E1E24]/60 last:border-0"
-          >
+    <div className="space-y-6">
+      <div>
+        <label className="block text-xs text-[#6B6B72] mb-3 uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif" }}>
+          Output Options
+        </label>
+        <div className="space-y-2">
+          {visible.map((def) => (
+            <div
+              key={def.key}
+              className="flex items-center justify-between py-2 border-b border-[#1E1E24]/60 last:border-0"
+            >
+              <div>
+                <p className="text-sm text-[#F2F2F0] font-mono">{def.label}</p>
+                <p className="text-xs text-[#6B6B72]" style={{ fontFamily: "Inter, sans-serif" }}>
+                  {def.description}
+                </p>
+              </div>
+              <label className="toggle-switch flex-shrink-0 ml-4">
+                <input
+                  type="checkbox"
+                  checked={toggles[def.key]}
+                  onChange={() => onChange(def.key)}
+                />
+                <span className="toggle-slider" />
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {!isLong && (
+        <div
+          className={`rounded-lg border p-4 transition-colors ${
+            toggles.boardGameMode
+              ? "border-orange-500/60 bg-orange-500/10"
+              : "border-[#1E1E24] bg-[#0D0D10]"
+          }`}
+        >
+          <label className="block text-xs mb-3 uppercase tracking-widest" style={{ fontFamily: "Inter, sans-serif", color: toggles.boardGameMode ? "#f97316" : "#6B6B72" }}>
+            Video Style
+          </label>
+          <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-[#F2F2F0] font-mono">{def.label}</p>
-              <p className="text-xs text-[#6B6B72]" style={{ fontFamily: "Inter, sans-serif" }}>
-                {def.description}
+              <p className={`text-sm font-mono font-semibold ${toggles.boardGameMode ? "text-orange-400" : "text-[#F2F2F0]"}`}>
+                Board Game Mode
+              </p>
+              <p className="text-xs mt-0.5" style={{ fontFamily: "Inter, sans-serif", color: toggles.boardGameMode ? "#fb923c" : "#6B6B72" }}>
+                First 40s in board game world — then homeowner pivot
               </p>
             </div>
             <label className="toggle-switch flex-shrink-0 ml-4">
               <input
                 type="checkbox"
-                checked={toggles[def.key]}
-                onChange={() => onChange(def.key)}
+                checked={toggles.boardGameMode}
+                onChange={() => onChange("boardGameMode")}
               />
-              <span className="toggle-slider" />
+              <span className="toggle-slider" style={toggles.boardGameMode ? { backgroundColor: "#f97316" } : {}} />
             </label>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

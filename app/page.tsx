@@ -48,6 +48,7 @@ const DEFAULT_TOGGLES: Toggles = {
   caption: false,
   chapterMarkers: false,
   youtubeCta: false,
+  boardGameMode: false,
 };
 
 const DEFAULT_TOGGLES_QUICK: Toggles = {
@@ -63,6 +64,7 @@ const DEFAULT_TOGGLES_QUICK: Toggles = {
   caption: false,
   chapterMarkers: false,
   youtubeCta: false,
+  boardGameMode: false,
 };
 
 const DEFAULT_TOGGLES_LONGFORM: Toggles = {
@@ -78,6 +80,7 @@ const DEFAULT_TOGGLES_LONGFORM: Toggles = {
   caption: false,
   chapterMarkers: true,
   youtubeCta: true,
+  boardGameMode: false,
 };
 
 export default function Home() {
@@ -271,7 +274,7 @@ export default function Home() {
       const res = await fetch("/api/concepts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, platform, duration, location, selectedHook, audience, tone, patterns, savedIdeas, context }),
+        body: JSON.stringify({ topic, platform, duration, location, selectedHook, audience, tone, patterns, savedIdeas, context, boardGameMode: toggles.boardGameMode }),
       });
       if (!res.body) throw new Error("No response");
       const reader = res.body.getReader();
