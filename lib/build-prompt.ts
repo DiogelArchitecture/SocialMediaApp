@@ -235,6 +235,19 @@ Stage 6 — THE INVITATION: Soft CTA. Never "book now." An invitation, not a clo
 These six stages map to the three parts named in Phase 3 of the PPP opening. Each part should be signposted in spoken dialogue.\n\n`;
 }
 
+// ─── Hook sensory block ───────────────────────────────────────────────────────
+
+function buildSeeHearReadBlock(): string {
+  return `HOOK — FIRST 3 SECONDS (mandatory output at the top of every hook section):
+Before writing any spoken dialogue, output these three fields as a labeled block:
+
+WHAT THEY SEE: [precise visual — camera framing, subject position, action or movement in the first 3 seconds]
+WHAT THEY HEAR: [the exact opening words as spoken, or ambient sound if pre-dialogue — what hits the ear first]
+WHAT THEY READ: [any on-screen text overlay or caption that appears in the first 3 seconds — or "None"]
+
+All three must reinforce the same emotional or intellectual punch. The brain processes See, Hear, and Read simultaneously — if any element contradicts or dilutes the others, the hook breaks. After this block, write the full spoken hook and continue the script.\n\n`;
+}
+
 // ─── Board Game Mode prompt block ─────────────────────────────────────────────
 
 function buildBoardGameBlock(duration: AnyDuration): string {
@@ -244,7 +257,7 @@ function buildBoardGameBlock(duration: AnyDuration): string {
 The Diogel Board Game Framework (full rules loaded in knowledge files) applies. Summary:
 
 STRUCTURE:
-[0:00–0:10] BESPOKE HOOK — Start mid-action on a completely unique, specific strategic blunder. No greeting ("Hello," "Hey guys"). No template phrasing. Fresh scenario every time, tied to this video's exact game mechanic.
+[0:00–0:10] BESPOKE HOOK — Open with the WHAT THEY SEE / WHAT THEY HEAR / WHAT THEY READ block (per the instruction above the script brief), then start mid-action on a completely unique, specific strategic blunder. No greeting ("Hello," "Hey guys"). No template phrasing. Fresh scenario every time, tied to this video's exact game mechanic.
 
 [0:10–0:40] GAME MECHANICS — Stay entirely in the board game world. No houses, buildings, extensions, rooms, or any architectural reference. Explain the rulebook, the Game Master's limitations, why this move collapses the player's engine. Geek out. Use: Meeples, tokens, cardboard tiles, wooden resource blocks, map zones, strategic bottlenecks, expansion packs. PROHIBITED: video game refs (Tetris, NPCs, "levelling up"), sports refs (referees, fouls).
 
@@ -279,6 +292,8 @@ export function buildUserPrompt(params: BuildPromptParams): string {
   }
 
   prompt += "\n";
+
+  prompt += buildSeeHearReadBlock();
 
   if (toggles.boardGameMode) {
     prompt += buildBoardGameBlock(duration);
@@ -373,10 +388,12 @@ export function buildLongFormPrompt(params: BuildPromptParams): string {
     prompt += `3-phase arc: ${selectedConcept.premise}\n\n`;
   }
 
+  prompt += buildSeeHearReadBlock();
+
   prompt += `OUTPUT FORMAT — produce ALL of the following sections in this exact order:\n\n`;
 
   prompt += `===HOOK===\n`;
-  prompt += `The PPP opening — all three phases, spoken aloud, covering the first ~60–90 seconds of the video.\n\n`;
+  prompt += `Open with the WHAT THEY SEE / WHAT THEY HEAR / WHAT THEY READ block (per the instruction above), then the PPP opening — all three phases, spoken aloud, covering the first ~60–90 seconds of the video.\n\n`;
   prompt += `PHASE 1 — PROOF:\n`;
   prompt += `Exactly two sentences. This template is non-negotiable — use it verbatim:\n`;
   prompt += `Sentence 1: "Last [time period], one of our clients / I was speaking to someone who [specific result or specific problem]."\n`;
